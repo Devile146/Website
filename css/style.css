@@ -1061,6 +1061,139 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 .about-stat-num {
     color: #FFD700 !important;
 }
+/* ============ PERFECT FIX - Shadows + White Text + Clear ============ */
+
+/* Boxes ko halka shadow - saaf dikhe */
+.hero-panel,
+.preview-card,
+.tool-card,
+.category-card,
+.contact-card,
+.builder-section,
+.about-profile-card,
+.contact-details-box,
+.sidebar {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Toolkit maker labels - WHITE text full opacity */
+.form-group label,
+.builder-section-title,
+.form-group input,
+.form-group textarea,
+.form-group select {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Product item names white */
+.product-item-name {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Theme card names white */
+.theme-card h4 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+/* Code title white */
+.code-title {
+    color: #ffffff !important;
+}
+
+/* Progress step white */
+.progress-step {
+    color: #ffffff !important;
+}
+
+/* Sab text saaf - opacity full */
+.page-description,
+.hero-description,
+.about-text,
+.tool-card p,
+.category-card p,
+.preview-card p,
+.contact-info p,
+.item-info span,
+.panel-footer,
+.detail-item {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Stats center */
+.hero-stats-mini {
+    justify-content: center !important;
+}
+
+/* Icons shiny */
+.contact-icon.whatsapp {
+    background: linear-gradient(135deg, #25D366, #128C7E) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.5) !important;
+}
+
+.contact-icon.telegram {
+    background: linear-gradient(135deg, #0088cc, #00d4ff) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(0, 136, 204, 0.5) !important;
+}
+
+.contact-icon.email {
+    background: linear-gradient(135deg, #FF4D91, #FF8C42) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(255, 77, 145, 0.5) !important;
+}
+
+.contact-icon.premium {
+    background: linear-gradient(135deg, #FFD700, #FF8C42) !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5) !important;
+    text-shadow: none !important;
+}
+
+/* Tool names colorful */
+.tool-card h3 {
+    background: linear-gradient(135deg, #FFD700, #FF4D91) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* Category names colorful */
+.category-card h3 {
+    background: linear-gradient(135deg, #00d4ff, #6D5CFF) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* Value items different colors */
+.value-item:nth-child(1) strong, .value-item:nth-child(1) i { color: #FF4D91 !important; }
+.value-item:nth-child(2) strong, .value-item:nth-child(2) i { color: #00d4ff !important; }
+.value-item:nth-child(3) strong, .value-item:nth-child(3) i { color: #4ade80 !important; }
+.value-item:nth-child(4) strong, .value-item:nth-child(4) i { color: #FF8C42 !important; }
+.value-item:nth-child(5) strong, .value-item:nth-child(5) i { color: #FFD700 !important; }
+
+/* 360px compact */
+@media (max-width: 400px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 340px !important; gap: 6px !important; }
+    .profile-image-wrapper { width: 100px !important; height: 130px !important; }
+    .main-content { padding: 50px 6px 20px !important; }
+    .page-title { font-size: 16px !important; }
+}
 
 .about-stat-label {
     color: #ffffff !important;
