@@ -1019,3 +1019,92 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ============ FINAL FIX - Stats Center + Text Colorful ============ */
+
+/* Hero stats CENTER me */
+.hero-stats-mini {
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 20px !important;
+}
+
+.mini-stat {
+    align-items: center !important;
+}
+
+/* About text COLORFUL */
+.about-text {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
+.highlight-text {
+    color: #FFD700 !important;
+    font-weight: 700 !important;
+}
+
+/* Value item text colorful */
+.value-item strong {
+    color: #FFD700 !important;
+}
+
+.value-item span {
+    color: #e0e0e8 !important;
+}
+
+.value-item i {
+    color: #FF4D91 !important;
+}
+
+/* About stats colorful */
+.about-stat-num {
+    color: #FFD700 !important;
+}
+
+.about-stat-label {
+    color: #ffffff !important;
+}
+
+/* Tool card names COLORFUL */
+.tool-card h3 {
+    color: #FFD700 !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7) !important;
+}
+
+.tool-card p {
+    color: #ffffff !important;
+}
+
+/* Category card names colorful */
+.category-card h3 {
+    color: #FFD700 !important;
+}
+
+/* Preview card names colorful */
+.preview-card h3 {
+    color: #FFD700 !important;
+}
+
+/* Panel item names colorful */
+.item-info strong {
+    color: #FFD700 !important;
+}
+
+.item-info span {
+    color: #ffffff !important;
+}
+
+/* Contact names colorful */
+.contact-info h3 {
+    color: #FFD700 !important;
+}
+
+.contact-info p {
+    color: #ffffff !important;
+}
+
+/* Builder section title colorful */
+.builder-section-title {
+    color: #FFD700 !important;
+}
