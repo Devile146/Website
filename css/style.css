@@ -1108,3 +1108,162 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 .builder-section-title {
     color: #FFD700 !important;
 }
+
+/* ============ COLORFUL FIX - Shiny Icons + Different Colors ============ */
+
+/* Hero stats CENTER */
+.hero-stats-mini {
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 20px !important;
+}
+
+.mini-stat {
+    align-items: center !important;
+}
+
+.mini-stat-value {
+    background: linear-gradient(135deg, #FF4D91, #FFD700) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+.mini-stat-label {
+    color: #ffffff !important;
+}
+
+/* Tool card names - PINK se GOLD gradient */
+.tool-card h3 {
+    background: linear-gradient(135deg, #FF4D91, #FFD700) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* Category card names - CYAN se PURPLE */
+.category-card h3 {
+    background: linear-gradient(135deg, #00d4ff, #6D5CFF) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* Preview card names - GREEN se CYAN */
+.preview-card h3 {
+    background: linear-gradient(135deg, #4ade80, #00d4ff) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* Panel item names - ORANGE se PINK */
+.item-info strong {
+    background: linear-gradient(135deg, #FF8C42, #FF4D91) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+/* About highlight text - GOLD */
+.highlight-text {
+    color: #FFD700 !important;
+    font-weight: 700 !important;
+}
+
+/* Value item - different colors */
+.value-item:nth-child(1) i { color: #FF4D91 !important; }
+.value-item:nth-child(1) strong { color: #FF4D91 !important; }
+.value-item:nth-child(2) i { color: #00d4ff !important; }
+.value-item:nth-child(2) strong { color: #00d4ff !important; }
+.value-item:nth-child(3) i { color: #4ade80 !important; }
+.value-item:nth-child(3) strong { color: #4ade80 !important; }
+.value-item:nth-child(4) i { color: #FF8C42 !important; }
+.value-item:nth-child(4) strong { color: #FF8C42 !important; }
+.value-item:nth-child(5) i { color: #FFD700 !important; }
+.value-item:nth-child(5) strong { color: #FFD700 !important; }
+
+/* SHINY CONTACT ICONS */
+.contact-icon.whatsapp {
+    background: linear-gradient(135deg, #25D366, #128C7E) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(37, 211, 102, 0.6) !important;
+}
+
+.contact-icon.telegram {
+    background: linear-gradient(135deg, #0088cc, #00d4ff) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(0, 136, 204, 0.6) !important;
+}
+
+.contact-icon.email {
+    background: linear-gradient(135deg, #FF4D91, #FF8C42) !important;
+    color: #fff !important;
+    box-shadow: 0 0 15px rgba(255, 77, 145, 0.6) !important;
+}
+
+.contact-icon.premium {
+    background: linear-gradient(135deg, #FFD700, #FF8C42) !important;
+    color: #000 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important;
+    text-shadow: none !important;
+}
+
+/* Sidebar icons shiny */
+.sidebar-link:nth-child(1) i { color: #FF4D91 !important; }
+.sidebar-link:nth-child(2) i { color: #00d4ff !important; }
+.sidebar-link:nth-child(3) i { color: #4ade80 !important; }
+.sidebar-link:nth-child(4) i { color: #FFD700 !important; }
+.sidebar-link:nth-child(5) i { color: #FF8C42 !important; }
+.sidebar-link:nth-child(6) i { color: #6D5CFF !important; }
+
+/* Tool icons different colors */
+.tool-card:nth-child(odd) .tool-icon {
+    background: linear-gradient(135deg, rgba(109, 92, 255, 0.5), rgba(255, 77, 145, 0.5)) !important;
+    color: #fff !important;
+}
+
+.tool-card:nth-child(even) .tool-icon {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(74, 222, 128, 0.5)) !important;
+    color: #fff !important;
+}
+
+/* Category icons different */
+.category-card:nth-child(odd) .category-icon {
+    background: linear-gradient(135deg, rgba(255, 77, 145, 0.5), rgba(255, 140, 66, 0.5)) !important;
+    color: #fff !important;
+}
+
+.category-card:nth-child(even) .category-icon {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.5), rgba(109, 92, 255, 0.5)) !important;
+    color: #fff !important;
+}
+
+/* Panel icons shiny */
+.item-icon.purple { background: linear-gradient(135deg, #6D5CFF, #FF4D91) !important; color: #fff !important; box-shadow: 0 0 12px rgba(109, 92, 255, 0.5) !important; }
+.item-icon.blue { background: linear-gradient(135deg, #3B82F6, #00d4ff) !important; color: #fff !important; box-shadow: 0 0 12px rgba(59, 130, 246, 0.5) !important; }
+.item-icon.pink { background: linear-gradient(135deg, #FF4D91, #FF8C42) !important; color: #fff !important; box-shadow: 0 0 12px rgba(255, 77, 145, 0.5) !important; }
+.item-icon.green { background: linear-gradient(135deg, #FFD700, #4ade80) !important; color: #000 !important; box-shadow: 0 0 12px rgba(255, 215, 0, 0.5) !important; text-shadow: none !important; }
+
+/* Builder section title colorful */
+.builder-section-title {
+    background: linear-gradient(135deg, #FFD700, #FF4D91) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    text-shadow: none !important;
+}
+
+.builder-section-title i {
+    -webkit-text-fill-color: #FF4D91 !important;
+}
+
+/* Contact info names */
+.contact-info h3 {
+    color: #fff !important;
+}
