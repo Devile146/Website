@@ -2622,16 +2622,17 @@ input, textarea, select {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+   }
+
+/* ============ FINAL - WHITE GLASS + SAaf TEXT ============ */
+
+/* Sab text WHITE */
+h1, h2, h3, h4, p, span, a, button, label, strong, li, div {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* ============ FINAL FIX - White Glass + Text Shadow ============ */
-
-/* Text pe halka black shadow - saaf dikhe */
-h1, h2, h3, h4, p, span, a, button, label, strong, li {
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7) !important;
-}
-
-/* Gradient text pe shadow nahi */
+/* Gradient wale text apne color me rahein */
 .gradient-text,
 .logo-name,
 .mini-stat-value,
@@ -2639,12 +2640,22 @@ h1, h2, h3, h4, p, span, a, button, label, strong, li {
     text-shadow: none !important;
 }
 
-/* Background photo saaf - overlay kam */
-.page-background::after {
-    background: rgba(5, 5, 16, 0.10) !important;
+/* Premium buttons ka text BLACK */
+.btn-toolkit,
+.tool-btn.premium-btn,
+.tool-category-badge.premium-badge,
+.contact-icon.premium,
+.download-btn {
+    color: #000000 !important;
+    text-shadow: none !important;
 }
 
-/* Boxes WHITE transparent - gray nahi */
+/* Background photo bilkul saaf */
+.page-background::after {
+    background: rgba(5, 5, 16, 0.06) !important;
+}
+
+/* SAB BOXES - WHITE SHEESHA (gray nahi) */
 .hero-panel,
 .preview-card,
 .tool-card,
@@ -2653,20 +2664,39 @@ h1, h2, h3, h4, p, span, a, button, label, strong, li {
 .builder-section,
 .about-profile-card,
 .contact-details-box,
-.sidebar {
+.sidebar,
+.navbar,
+.panel-item,
+.value-item,
+.product-item,
+.theme-card,
+.generated-output,
+.visit-modal-content {
     background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
+    backdrop-filter: blur(3px) !important;
+    -webkit-backdrop-filter: blur(3px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.10) !important;
 }
 
-/* About photo RECTANGLE */
+/* About photo RECTANGLE - saaf */
 .profile-image-wrapper {
     width: 160px !important;
     height: 190px !important;
     border-radius: 12px !important;
     box-shadow: none !important;
     animation: none !important;
-    border: 2px solid rgba(255, 255, 255, 0.30) !important;
+    border: 2px solid rgba(255, 255, 255, 0.25) !important;
+    background: transparent !important;
+}
+
+/* Input fields bhi white transparent */
+.form-group input,
+.form-group textarea,
+.form-group select,
+.nav-search {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #fff !important;
 }
 
 /* 360px compact */
