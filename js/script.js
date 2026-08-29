@@ -2,32 +2,14 @@
 // FAHAD TECH - MAIN SCRIPT
 // =========================
 
-// Configuration - Update these with your actual links
+// Configuration
 const CONFIG = {
-    WHATSAPP_LINK: "https://wa.me/YOUR_NUMBER_HERE",
-    TELEGRAM_LINK: "https://t.me/YOUR_USERNAME_HERE",
-    YOUTUBE_LINK: "https://youtube.com/@YOUR_CHANNEL_HERE",
-    WEBSITE_LINK: "https://yourwebsite.com",
-    PROFILE_IMAGE: "https://raw.githubusercontent.com/Devile146/Website/main/Img2.jpg"
+    WHATSAPP_LINK: "https://wa.me/923251138960",
+    TELEGRAM_LINK: "https://t.me/fahad_tricks_bot",
+    EMAIL_LINK: "mailto:fahadali2727@gmail.com",
+    PREMIUM_WHATSAPP: "https://wa.me/923251138959",
+    PROFILE_IMAGE: "https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg"
 };
-
-// Tools Data - Add your tools here
-let toolsData = [
-    {
-        name: "Tool Coming Soon",
-        description: "Placeholder for your first tool. Add your tools here.",
-        category: "online-tools",
-        icon: "fas fa-tools",
-        link: "#"
-    },
-    {
-        name: "App Coming Soon",
-        description: "Placeholder for your first app. Add your apps here.",
-        category: "apps",
-        icon: "fas fa-mobile-alt",
-        link: "#"
-    }
-];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,24 +17,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initContactLinks();
     initProfileImage();
     
-    // Initialize tools page if we're on tools.html
+    // Initialize tools if on tools page
     if (document.getElementById('toolsGrid')) {
         renderTools('all');
-        initToolFilters();
-    }
-    
-    // Check for category parameter in URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-    if (category && document.getElementById('toolsGrid')) {
-        renderTools(category);
-        // Update active filter button
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.dataset.filter === category) {
-                btn.classList.add('active');
-            }
-        });
+        checkUrlCategory();
     }
 });
 
@@ -67,7 +35,6 @@ function initMobileMenu() {
             mobileMenu.classList.toggle('open');
         });
         
-        // Close menu when clicking a link
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', function() {
                 hamburger.classList.remove('active');
@@ -79,24 +46,14 @@ function initMobileMenu() {
 
 // Contact Links
 function initContactLinks() {
-    // WhatsApp
-    document.querySelectorAll('#whatsappCard, #sidebarWhatsApp').forEach(el => {
-        if (el) el.href = CONFIG.WHATSAPP_LINK;
+    document.querySelectorAll('[data-whatsapp]').forEach(el => {
+        el.href = CONFIG.WHATSAPP_LINK;
     });
-    
-    // Telegram
-    document.querySelectorAll('#telegramCard, #sidebarTelegram').forEach(el => {
-        if (el) el.href = CONFIG.TELEGRAM_LINK;
+    document.querySelectorAll('[data-telegram]').forEach(el => {
+        el.href = CONFIG.TELEGRAM_LINK;
     });
-    
-    // YouTube
-    document.querySelectorAll('#youtubeCard, #sidebarYouTube').forEach(el => {
-        if (el) el.href = CONFIG.YOUTUBE_LINK;
-    });
-    
-    // Website
-    document.querySelectorAll('#websiteCard').forEach(el => {
-        if (el) el.href = CONFIG.WEBSITE_LINK;
+    document.querySelectorAll('[data-email]').forEach(el => {
+        el.href = CONFIG.EMAIL_LINK;
     });
 }
 
@@ -108,20 +65,37 @@ function initProfileImage() {
     }
 }
 
+// Check URL Category
+function checkUrlCategory() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category');
+    if (category) {
+        filterTools(category);
+    }
+}
+
 // Render Tools
-function renderTools(category = 'all') {
+function renderTools(category = 'all', searchTerm = '') {
     const toolsGrid = document.getElementById('toolsGrid');
     const toolsEmpty = document.getElementById('toolsEmpty');
     
     if (!toolsGrid) return;
     
-    // Filter tools
     let filteredTools = toolsData;
+    
+    // Filter by category
     if (category !== 'all') {
-        filteredTools = toolsData.filter(tool => tool.category === category);
+        filteredTools = filteredTools.filter(tool => tool.category === category);
     }
     
-    // Clear grid
+    // Filter by search
+    if (searchTerm) {
+        filteredTools = filteredTools.filter(tool => 
+            tool.name.toLowerCase().includes(searchTerm) ||
+            tool.description.toLowerCase().includes(searchTerm)
+        );
+    }
+    
     toolsGrid.innerHTML = '';
     
     if (filteredTools.length === 0) {
@@ -137,42 +111,47 @@ function renderTools(category = 'all') {
         toolsEmpty.style.display = 'none';
     }
     
-    // Render each tool
     filteredTools.forEach((tool, index) => {
         const card = document.createElement('div');
         card.classList.add('tool-card');
-        card.style.animationDelay = (index * 0.1) + 's';
+        card.style.animationDelay = (index * 0.05) + 's';
+        
+        const isPremium = tool.type === 'premium';
+        const buttonAction = isPremium 
+            ? `window.open('${CONFIG.PREMIUM_WHATSAPP}?text=${encodeURIComponent('Hello! I am interested in: ' + tool.name)}', '_blank')`
+            : `openVisitModal('${tool.name.replace(/'/g, "\\'")}', '${tool.link}')`;
+        
+        const buttonText = isPremium ? 'Contact Admin' : 'Open Tool';
+        const buttonIcon = isPremium ? 'fas fa-crown' : 'fas fa-external-link-alt';
         
         card.innerHTML = `
             <div class="tool-icon">
                 <i class="${tool.icon}"></i>
             </div>
-            <span class="tool-category-badge">${getCategoryName(tool.category)}</span>
+            <span class="tool-category-badge ${isPremium ? 'premium-badge' : ''}">${isPremium ? '⭐ PREMIUM' : getCategoryName(tool.category)}</span>
             <h3>${tool.name}</h3>
             <p>${tool.description}</p>
-            <a href="${tool.link}" target="_blank" rel="noopener noreferrer" class="tool-btn">
-                Open Tool <i class="fas fa-arrow-right"></i>
-            </a>
+            <button onclick="${buttonAction}" class="tool-btn ${isPremium ? 'premium-btn' : 'free-btn'}">
+                ${buttonText} <i class="${buttonIcon}"></i>
+            </button>
         `;
         
         toolsGrid.appendChild(card);
     });
 }
 
-// Tool Filters
-function initToolFilters() {
+// Filter Tools
+function filterTools(category) {
+    // Update active button
     document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Update active button
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                b.classList.remove('active');
-            });
-            this.classList.add('active');
-            
-            // Render filtered tools
-            renderTools(this.dataset.filter);
-        });
+        btn.classList.remove('active');
+        if (btn.dataset.filter === category) {
+            btn.classList.add('active');
+        }
     });
+    
+    const searchTerm = document.getElementById('toolSearchInput')?.value || '';
+    renderTools(category, searchTerm);
 }
 
 // Search Tools
@@ -181,76 +160,64 @@ function searchTools() {
     if (!searchInput) return;
     
     const searchTerm = searchInput.value.toLowerCase();
+    const activeCategory = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
     
-    if (searchTerm.trim() === '') {
-        renderTools('all');
-        return;
-    }
-    
-    const filtered = toolsData.filter(tool => 
-        tool.name.toLowerCase().includes(searchTerm) ||
-        tool.description.toLowerCase().includes(searchTerm) ||
-        getCategoryName(tool.category).toLowerCase().includes(searchTerm)
-    );
-    
-    const toolsGrid = document.getElementById('toolsGrid');
-    const toolsEmpty = document.getElementById('toolsEmpty');
-    
-    if (!toolsGrid) return;
-    
-    toolsGrid.innerHTML = '';
-    
-    if (filtered.length === 0) {
-        toolsGrid.style.display = 'none';
-        if (toolsEmpty) {
-            toolsEmpty.style.display = 'block';
-            toolsEmpty.innerHTML = `
-                <i class="fas fa-search"></i>
-                <p>No tools found for "${searchInput.value}"</p>
-            `;
-        }
-        return;
-    }
-    
-    toolsGrid.style.display = 'grid';
-    if (toolsEmpty) {
-        toolsEmpty.style.display = 'none';
-    }
-    
-    filtered.forEach((tool, index) => {
-        const card = document.createElement('div');
-        card.classList.add('tool-card');
-        card.style.animationDelay = (index * 0.1) + 's';
-        
-        card.innerHTML = `
-            <div class="tool-icon">
-                <i class="${tool.icon}"></i>
-            </div>
-            <span class="tool-category-badge">${getCategoryName(tool.category)}</span>
-            <h3>${tool.name}</h3>
-            <p>${tool.description}</p>
-            <a href="${tool.link}" target="_blank" rel="noopener noreferrer" class="tool-btn">
-                Open Tool <i class="fas fa-arrow-right"></i>
-            </a>
-        `;
-        
-        toolsGrid.appendChild(card);
-    });
+    renderTools(activeCategory, searchTerm);
 }
 
 // Get Category Name
 function getCategoryName(category) {
     const names = {
-        'online-tools': 'Online Tools',
-        'apps': 'Apps & Resources',
-        'tricks': 'Tricks & Tips',
-        'all': 'All Tools'
+        'ai': 'AI Tools',
+        'photo': 'Photo AI',
+        'video': 'Video Makers',
+        'osint': 'OSINT',
+        'telegram': 'Telegram Bots',
+        'encoder': 'Encoders',
+        'social': 'Social Media',
+        'mods': 'Mod Apps',
+        'hacking': 'Hacking',
+        'prank': 'Prank',
+        'courses': 'Courses',
+        'gaming': 'Gaming',
+        'fonts': 'Fonts',
+        'utility': 'Utilities',
+        'premium': 'Premium'
     };
     return names[category] || category;
 }
 
-// Add Tool Function (for future use)
-function addTool(tool) {
-    toolsData.push(tool);
-    renderTools('all');
+// Visit Modal
+function openVisitModal(toolName, toolLink) {
+    const modal = document.getElementById('visitModal');
+    const modalToolName = document.getElementById('modalToolName');
+    const visitLink = document.getElementById('visitLink');
+    
+    if (modal && modalToolName && visitLink) {
+        modalToolName.textContent = toolName;
+        visitLink.href = toolLink;
+        modal.style.display = 'flex';
+    }
 }
+
+function closeModal() {
+    const modal = document.getElementById('visitModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Close modal on outside click
+window.onclick = function(event) {
+    const modal = document.getElementById('visitModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+};
+
+// Close modal on Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
