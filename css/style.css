@@ -2622,32 +2622,60 @@ input, textarea, select {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
-   }
-
-/* ============ TEXT FIX - White Text + Black Shadow ============ */
-
-h1, h2, h3, h4, p, span, a, button, label, strong, li {
-    color: #ffffff !important;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* In elements pe text-shadow nahi (buttons ke andar text) */
+/* ============ FINAL FIX - White Glass + Text Shadow ============ */
+
+/* Text pe halka black shadow - saaf dikhe */
+h1, h2, h3, h4, p, span, a, button, label, strong, li {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Gradient text pe shadow nahi */
 .gradient-text,
 .logo-name,
-.btn-toolkit,
-.tool-btn.premium-btn,
-.tool-category-badge.premium-badge,
-.contact-icon.premium,
-.download-btn,
-.code-box {
+.mini-stat-value,
+.about-stat-num {
     text-shadow: none !important;
 }
 
-/* Premium button ka text black */
-.btn-toolkit,
-.tool-btn.premium-btn,
-.tool-category-badge.premium-badge,
-.contact-icon.premium,
-.download-btn {
-    color: #000000 !important;
+/* Background photo saaf - overlay kam */
+.page-background::after {
+    background: rgba(5, 5, 16, 0.10) !important;
+}
+
+/* Boxes WHITE transparent - gray nahi */
+.hero-panel,
+.preview-card,
+.tool-card,
+.category-card,
+.contact-card,
+.builder-section,
+.about-profile-card,
+.contact-details-box,
+.sidebar {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+}
+
+/* About photo RECTANGLE */
+.profile-image-wrapper {
+    width: 160px !important;
+    height: 190px !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    animation: none !important;
+    border: 2px solid rgba(255, 255, 255, 0.30) !important;
+}
+
+/* 360px compact */
+@media (max-width: 400px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 340px !important; gap: 5px !important; }
+    .profile-image-wrapper { width: 100px !important; height: 130px !important; }
+}
+
+/* Desktop 3 columns */
+@media (min-width: 1025px) {
+    .tools-grid { grid-template-columns: repeat(3, 1fr) !important; max-width: 800px !important; }
 }
