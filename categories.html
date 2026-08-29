@@ -6,7 +6,7 @@
     <title>Categories - Fahad Tech</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -15,7 +15,6 @@
     <div class="bg-glow-purple"></div>
     <div class="bg-glow-blue"></div>
 
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="nav-logo">
@@ -25,102 +24,147 @@
                     <span class="logo-tagline">Premium Platform</span>
                 </div>
             </a>
-            
             <div class="nav-center">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="tools.html" class="nav-link">Tools</a>
                 <a href="categories.html" class="nav-link active">Categories</a>
+                <a href="toolkit-maker.html" class="nav-link">Toolkit Maker</a>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="contact.html" class="nav-link">Contact</a>
             </div>
-            
             <div class="nav-right">
                 <button class="hamburger" id="hamburgerBtn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
-        
         <div class="mobile-menu" id="mobileMenu">
             <a href="index.html">Home</a>
             <a href="tools.html">Tools</a>
             <a href="categories.html" class="active">Categories</a>
+            <a href="toolkit-maker.html">Toolkit Maker</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
         </div>
     </nav>
 
-    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-inner">
-            <a href="index.html" class="sidebar-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="tools.html" class="sidebar-link">
-                <i class="fas fa-tools"></i>
-                <span>Tools</span>
-            </a>
-            <a href="categories.html" class="sidebar-link active">
-                <i class="fas fa-th-large"></i>
-                <span>Categories</span>
-            </a>
-            <a href="about.html" class="sidebar-link">
-                <i class="fas fa-user"></i>
-                <span>About</span>
-            </a>
-            <a href="contact.html" class="sidebar-link">
-                <i class="fas fa-envelope"></i>
-                <span>Contact</span>
-            </a>
+            <a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="tools.html" class="sidebar-link"><i class="fas fa-tools"></i><span>Tools</span></a>
+            <a href="categories.html" class="sidebar-link active"><i class="fas fa-th-large"></i><span>Categories</span></a>
+            <a href="toolkit-maker.html" class="sidebar-link"><i class="fas fa-magic"></i><span>Toolkit Maker</span></a>
+            <a href="about.html" class="sidebar-link"><i class="fas fa-user"></i><span>About</span></a>
+            <a href="contact.html" class="sidebar-link"><i class="fas fa-envelope"></i><span>Contact</span></a>
         </div>
         <div class="sidebar-footer">
-            <a href="#" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
-            <a href="#" class="sidebar-social"><i class="fab fa-telegram"></i></a>
-            <a href="#" class="sidebar-social"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/923251138960" target="_blank" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://t.me/fahad_tricks_bot" target="_blank" class="sidebar-social"><i class="fab fa-telegram"></i></a>
+            <a href="mailto:fahadali2727@gmail.com" class="sidebar-social"><i class="fas fa-envelope"></i></a>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Explore <span class="gradient-text">Categories</span></h1>
             <p class="page-description">Browse our organized digital resources</p>
         </div>
-        
-        <div class="categories-grid">
+
+        <div class="categories-grid" id="categoriesGrid">
             <a href="tools.html?category=all" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-globe"></i>
-                </div>
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(109,92,255,0.2),rgba(59,130,246,0.2));color:#6D5CFF;"><i class="fas fa-globe"></i></div>
                 <h3>All Tools</h3>
                 <p>Complete collection of digital resources</p>
-                <span class="category-badge">View All</span>
+                <span class="category-badge">Browse All</span>
             </a>
-            <a href="tools.html?category=online-tools" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-plug"></i>
-                </div>
-                <h3>Online Tools</h3>
-                <p>Web-based utilities and services</p>
+            <a href="tools.html?category=ai" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,77,145,0.2),rgba(109,92,255,0.2));color:#FF4D91;"><i class="fas fa-robot"></i></div>
+                <h3>AI Tools</h3>
+                <p>Artificial Intelligence platforms</p>
                 <span class="category-badge">Browse</span>
             </a>
-            <a href="tools.html?category=apps" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3>Apps & Resources</h3>
-                <p>Mobile apps and digital resources</p>
+            <a href="tools.html?category=photo" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(0,212,255,0.2));color:#3B82F6;"><i class="fas fa-image"></i></div>
+                <h3>Photo AI</h3>
+                <p>AI image generation tools</p>
                 <span class="category-badge">Browse</span>
             </a>
-            <a href="tools.html?category=tricks" class="category-card">
-                <div class="category-icon">
-                    <i class="fas fa-magic"></i>
-                </div>
-                <h3>Tricks & Tips</h3>
-                <p>Expert tricks and optimization guides</p>
+            <a href="tools.html?category=video" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(255,77,145,0.2));color:#FF6B6B;"><i class="fas fa-video"></i></div>
+                <h3>Video Makers</h3>
+                <p>AI video creation platforms</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=osint" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(74,222,128,0.2),rgba(59,130,246,0.2));color:#4ade80;"><i class="fas fa-search"></i></div>
+                <h3>OSINT Tools</h3>
+                <p>Open source intelligence</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=telegram" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(59,130,246,0.2));color:#00d4ff;"><i class="fab fa-telegram"></i></div>
+                <h3>Telegram Bots</h3>
+                <p>Useful Telegram bots</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=encoder" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,66,0.2));color:#ffd700;"><i class="fas fa-code"></i></div>
+                <h3>Encoders</h3>
+                <p>Encode/decode tools</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=social" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,77,145,0.2),rgba(255,140,66,0.2));color:#FF4D91;"><i class="fas fa-share-alt"></i></div>
+                <h3>Social Media</h3>
+                <p>Social media tools & tricks</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=mods" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(109,92,255,0.2),rgba(255,77,145,0.2));color:#6D5CFF;"><i class="fas fa-mobile-alt"></i></div>
+                <h3>Mod Apps</h3>
+                <p>Modified premium apps</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=hacking" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(0,255,0,0.2),rgba(0,200,0,0.2));color:#00ff00;"><i class="fas fa-shield-alt"></i></div>
+                <h3>Hacking Tools</h3>
+                <p>Educational security tools</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=prank" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,140,66,0.2),rgba(255,215,0,0.2));color:#FF8C42;"><i class="fas fa-laugh"></i></div>
+                <h3>Prank Tools</h3>
+                <p>Fun prank apps & tools</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=courses" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(59,130,246,0.2),rgba(0,212,255,0.2));color:#3B82F6;"><i class="fas fa-graduation-cap"></i></div>
+                <h3>Courses</h3>
+                <p>Free learning resources</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=gaming" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,77,145,0.2),rgba(109,92,255,0.2));color:#FF4D91;"><i class="fas fa-gamepad"></i></div>
+                <h3>Gaming</h3>
+                <p>Games & gaming tools</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=fonts" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(0,212,255,0.2),rgba(109,92,255,0.2));color:#00d4ff;"><i class="fas fa-font"></i></div>
+                <h3>Fonts</h3>
+                <p>Stylish fonts & text</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=utility" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(74,222,128,0.2),rgba(59,130,246,0.2));color:#4ade80;"><i class="fas fa-wrench"></i></div>
+                <h3>Utilities</h3>
+                <p>Useful utility tools</p>
+                <span class="category-badge">Browse</span>
+            </a>
+            <a href="tools.html?category=premium" class="category-card">
+                <div class="category-icon" style="background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(255,140,66,0.2));color:#ffd700;"><i class="fas fa-crown"></i></div>
+                <h3>Premium Tools</h3>
+                <p>Exclusive premium access</p>
                 <span class="category-badge">Browse</span>
             </a>
         </div>
@@ -128,4 +172,4 @@
 
     <script src="js/script.js"></script>
 </body>
-</html>
+    </html>
