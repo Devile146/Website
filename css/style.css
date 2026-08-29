@@ -947,6 +947,34 @@ h1, h2, h3, h4, p, span, a, button, label, strong, li {
     .logo-name { font-size: 8px; }
     .main-content { padding: 45px 3px 8px; }
     .page-title { font-size: 15px; }
+
+   /* ============ TEXT FIX - White Text + Black Shadow ============ */
+
+h1, h2, h3, h4, p, span, a, button, label, strong, li {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* In elements pe text-shadow nahi (buttons ke andar text) */
+.gradient-text,
+.logo-name,
+.btn-toolkit,
+.tool-btn.premium-btn,
+.tool-category-badge.premium-badge,
+.contact-icon.premium,
+.download-btn,
+.code-box {
+    text-shadow: none !important;
+}
+
+/* Premium button ka text black */
+.btn-toolkit,
+.tool-btn.premium-btn,
+.tool-category-badge.premium-badge,
+.contact-icon.premium,
+.download-btn {
+    color: #000000 !important;
+}
     .hero-title { font-size: 20px; }
     .tools-grid { max-width: 340px; gap: 6px; }
     .tool-card { min-height: 85px; padding: 7px 4px; border-radius: 8px; }
