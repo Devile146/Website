@@ -6,7 +6,7 @@
     <title>Tools - Fahad Tech</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -25,32 +25,29 @@
                     <span class="logo-tagline">Premium Platform</span>
                 </div>
             </a>
-            
             <div class="nav-center">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="tools.html" class="nav-link active">Tools</a>
                 <a href="categories.html" class="nav-link">Categories</a>
+                <a href="toolkit-maker.html" class="nav-link">Toolkit Maker</a>
                 <a href="about.html" class="nav-link">About</a>
                 <a href="contact.html" class="nav-link">Contact</a>
             </div>
-            
             <div class="nav-right">
                 <div class="nav-search">
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Search tools..." id="toolSearchInput" oninput="searchTools()">
                 </div>
                 <button class="hamburger" id="hamburgerBtn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
-        
         <div class="mobile-menu" id="mobileMenu">
             <a href="index.html">Home</a>
             <a href="tools.html" class="active">Tools</a>
             <a href="categories.html">Categories</a>
+            <a href="toolkit-maker.html">Toolkit Maker</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
         </div>
@@ -59,31 +56,17 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-inner">
-            <a href="index.html" class="sidebar-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="tools.html" class="sidebar-link active">
-                <i class="fas fa-tools"></i>
-                <span>Tools</span>
-            </a>
-            <a href="categories.html" class="sidebar-link">
-                <i class="fas fa-th-large"></i>
-                <span>Categories</span>
-            </a>
-            <a href="about.html" class="sidebar-link">
-                <i class="fas fa-user"></i>
-                <span>About</span>
-            </a>
-            <a href="contact.html" class="sidebar-link">
-                <i class="fas fa-envelope"></i>
-                <span>Contact</span>
-            </a>
+            <a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="tools.html" class="sidebar-link active"><i class="fas fa-tools"></i><span>Tools</span></a>
+            <a href="categories.html" class="sidebar-link"><i class="fas fa-th-large"></i><span>Categories</span></a>
+            <a href="toolkit-maker.html" class="sidebar-link"><i class="fas fa-magic"></i><span>Toolkit Maker</span></a>
+            <a href="about.html" class="sidebar-link"><i class="fas fa-user"></i><span>About</span></a>
+            <a href="contact.html" class="sidebar-link"><i class="fas fa-envelope"></i><span>Contact</span></a>
         </div>
         <div class="sidebar-footer">
-            <a href="#" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
-            <a href="#" class="sidebar-social"><i class="fab fa-telegram"></i></a>
-            <a href="#" class="sidebar-social"><i class="fab fa-youtube"></i></a>
+            <a href="https://wa.me/923251138960" target="_blank" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://t.me/fahad_tricks_bot" target="_blank" class="sidebar-social"><i class="fab fa-telegram"></i></a>
+            <a href="mailto:fahadali2727@gmail.com" class="sidebar-social"><i class="fas fa-envelope"></i></a>
         </div>
     </aside>
 
@@ -93,24 +76,47 @@
             <h1 class="page-title">Digital <span class="gradient-text">Tools</span></h1>
             <p class="page-description">Premium tools curated for your digital needs</p>
         </div>
-        
+
         <div class="tools-filter">
-            <button class="filter-btn active" data-filter="all">All Tools</button>
-            <button class="filter-btn" data-filter="online-tools">Online Tools</button>
-            <button class="filter-btn" data-filter="apps">Apps & Resources</button>
-            <button class="filter-btn" data-filter="tricks">Tricks & Tips</button>
+            <button class="filter-btn active" data-filter="all" onclick="filterTools('all')">All Tools</button>
+            <button class="filter-btn" data-filter="ai" onclick="filterTools('ai')">AI Tools</button>
+            <button class="filter-btn" data-filter="photo" onclick="filterTools('photo')">Photo AI</button>
+            <button class="filter-btn" data-filter="video" onclick="filterTools('video')">Video Makers</button>
+            <button class="filter-btn" data-filter="osint" onclick="filterTools('osint')">OSINT</button>
+            <button class="filter-btn" data-filter="telegram" onclick="filterTools('telegram')">Telegram Bots</button>
+            <button class="filter-btn" data-filter="encoder" onclick="filterTools('encoder')">Encoders</button>
+            <button class="filter-btn" data-filter="social" onclick="filterTools('social')">Social Media</button>
+            <button class="filter-btn" data-filter="mods" onclick="filterTools('mods')">Mod Apps</button>
+            <button class="filter-btn" data-filter="hacking" onclick="filterTools('hacking')">Hacking</button>
+            <button class="filter-btn" data-filter="prank" onclick="filterTools('prank')">Prank</button>
+            <button class="filter-btn" data-filter="courses" onclick="filterTools('courses')">Courses</button>
+            <button class="filter-btn" data-filter="gaming" onclick="filterTools('gaming')">Gaming</button>
+            <button class="filter-btn" data-filter="fonts" onclick="filterTools('fonts')">Fonts</button>
+            <button class="filter-btn" data-filter="utility" onclick="filterTools('utility')">Utilities</button>
+            <button class="filter-btn" data-filter="premium" onclick="filterTools('premium')">Premium</button>
         </div>
-        
-        <div class="tools-grid" id="toolsGrid">
-            <!-- Tools will be injected by JavaScript -->
-        </div>
-        
+
+        <div class="tools-grid" id="toolsGrid"></div>
         <div class="tools-empty" id="toolsEmpty" style="display:none;">
             <i class="fas fa-tools"></i>
             <p>No tools found. Check back soon!</p>
         </div>
     </main>
 
+    <!-- Visit Modal -->
+    <div class="visit-modal" id="visitModal" style="display:none;">
+        <div class="visit-modal-content">
+            <button class="visit-close" onclick="closeModal()">&times;</button>
+            <h3>Open Tool</h3>
+            <p>You are about to visit: <span id="modalToolName"></span></p>
+            <a href="#" target="_blank" rel="noopener noreferrer" class="visit-link-btn" id="visitLink">
+                <i class="fas fa-external-link-alt"></i> Visit Tool
+            </a>
+            <button class="cancel-visit" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script src="js/tools-data.js"></script>
     <script src="js/script.js"></script>
 </body>
-</html>
+    </html>
