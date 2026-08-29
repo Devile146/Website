@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools - Fahad Tech</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="tools-page">
+    <div class="page-background"></div>
+    <div class="bg-glow-purple"></div>
+    <div class="bg-glow-blue"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">FT</div>
+                <div class="logo-text">
+                    <span class="logo-name">FAHAD TECH</span>
+                    <span class="logo-tagline">Premium Platform</span>
+                </div>
+            </a>
+            
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="tools.html" class="nav-link active">Tools</a>
+                <a href="categories.html" class="nav-link">Categories</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </div>
+            
+            <div class="nav-right">
+                <div class="nav-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search tools..." id="toolSearchInput" oninput="searchTools()">
+                </div>
+                <button class="hamburger" id="hamburgerBtn">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="index.html">Home</a>
+            <a href="tools.html" class="active">Tools</a>
+            <a href="categories.html">Categories</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-inner">
+            <a href="index.html" class="sidebar-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="tools.html" class="sidebar-link active">
+                <i class="fas fa-tools"></i>
+                <span>Tools</span>
+            </a>
+            <a href="categories.html" class="sidebar-link">
+                <i class="fas fa-th-large"></i>
+                <span>Categories</span>
+            </a>
+            <a href="about.html" class="sidebar-link">
+                <i class="fas fa-user"></i>
+                <span>About</span>
+            </a>
+            <a href="contact.html" class="sidebar-link">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
+        </div>
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
+            <a href="#" class="sidebar-social"><i class="fab fa-telegram"></i></a>
+            <a href="#" class="sidebar-social"><i class="fab fa-youtube"></i></a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Digital <span class="gradient-text">Tools</span></h1>
+            <p class="page-description">Premium tools curated for your digital needs</p>
+        </div>
+        
+        <div class="tools-filter">
+            <button class="filter-btn active" data-filter="all">All Tools</button>
+            <button class="filter-btn" data-filter="online-tools">Online Tools</button>
+            <button class="filter-btn" data-filter="apps">Apps & Resources</button>
+            <button class="filter-btn" data-filter="tricks">Tricks & Tips</button>
+        </div>
+        
+        <div class="tools-grid" id="toolsGrid">
+            <!-- Tools will be injected by JavaScript -->
+        </div>
+        
+        <div class="tools-empty" id="toolsEmpty" style="display:none;">
+            <i class="fas fa-tools"></i>
+            <p>No tools found. Check back soon!</p>
+        </div>
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
