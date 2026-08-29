@@ -2624,88 +2624,82 @@ input, textarea, select {
     }
    }
 
-/* ============ FINAL - WHITE GLASS + SAaf TEXT ============ */
+/* ============ FINAL FIX - ALL PROBLEMS SOLVED ============ */
 
-/* Sab text WHITE */
-h1, h2, h3, h4, p, span, a, button, label, strong, li, div {
-    color: #ffffff !important;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), -1px -1px 2px rgba(0, 0, 0, 0.4) !important;
+/* About name WHITE - black nahi */
+.profile-name {
+    color: #FFD700 !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #FFD700 !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8) !important;
 }
 
-/* Gradient wale text apne color me rahein */
-.gradient-text,
-.logo-name,
-.mini-stat-value,
-.about-stat-num {
-    text-shadow: none !important;
+/* Page title spacing - top se gap */
+.page-header {
+    padding-top: 15px !important;
+    margin-bottom: 25px !important;
 }
 
-/* Premium buttons ka text BLACK */
-.btn-toolkit,
-.tool-btn.premium-btn,
-.tool-category-badge.premium-badge,
-.contact-icon.premium,
-.download-btn {
-    color: #000000 !important;
-    text-shadow: none !important;
+.page-title {
+    margin-top: 10px !important;
+    padding-top: 5px !important;
 }
 
-/* Background photo bilkul saaf */
-.page-background::after {
-    background: rgba(5, 5, 16, 0.06) !important;
+/* About photo neeche lao - border se gap */
+.about-wrapper {
+    padding-top: 25px !important;
 }
 
-/* SAB BOXES - WHITE SHEESHA (gray nahi) */
-.hero-panel,
-.preview-card,
-.tool-card,
-.category-card,
-.contact-card,
-.builder-section,
-.about-profile-card,
-.contact-details-box,
-.sidebar,
-.navbar,
-.panel-item,
-.value-item,
-.product-item,
-.theme-card,
-.generated-output,
-.visit-modal-content {
-    background: rgba(255, 255, 255, 0.05) !important;
-    backdrop-filter: blur(3px) !important;
-    -webkit-backdrop-filter: blur(3px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.10) !important;
+.about-profile-card {
+    margin-top: 25px !important;
 }
 
-/* About photo RECTANGLE - saaf */
 .profile-image-wrapper {
-    width: 160px !important;
-    height: 190px !important;
-    border-radius: 12px !important;
-    box-shadow: none !important;
-    animation: none !important;
-    border: 2px solid rgba(255, 255, 255, 0.25) !important;
-    background: transparent !important;
+    margin-top: 10px !important;
 }
 
-/* Input fields bhi white transparent */
-.form-group input,
-.form-group textarea,
-.form-group select,
-.nav-search {
-    background: rgba(255, 255, 255, 0.06) !important;
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
-    color: #fff !important;
-}
-
-/* 360px compact */
+/* 360px me sab chhota */
 @media (max-width: 400px) {
-    .tools-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 340px !important; gap: 5px !important; }
-    .profile-image-wrapper { width: 100px !important; height: 130px !important; }
+    .navbar { height: 42px !important; }
+    .main-content { padding: 50px 6px 15px !important; }
+    .page-header { padding-top: 10px !important; margin-bottom: 15px !important; }
+    .page-title { font-size: 16px !important; margin-top: 5px !important; }
+    .page-description { font-size: 9px !important; }
+    
+    .about-wrapper { padding-top: 15px !important; gap: 10px !important; }
+    .about-profile-card { margin-top: 15px !important; padding: 10px !important; }
+    .profile-image-wrapper { width: 100px !important; height: 130px !important; margin-top: 5px !important; }
+    .profile-name { font-size: 12px !important; }
+    .profile-title { font-size: 8px !important; }
+    
+    .tools-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 340px !important; gap: 6px !important; }
+    .tool-card { min-height: 85px !important; padding: 8px 5px !important; }
+    .tool-card h3 { font-size: 9px !important; }
+    .tool-card p { font-size: 7px !important; }
+    .tool-btn { padding: 4px 8px !important; font-size: 7px !important; }
+    
+    .hero-title { font-size: 22px !important; }
+    .hero-description { font-size: 8px !important; }
+    
+    .contact-card { padding: 10px 8px !important; }
+    .contact-info h3 { font-size: 10px !important; }
+    
+    .builder-section { padding: 10px 8px !important; }
+    .builder-section-title { font-size: 10px !important; }
+    .form-group label { font-size: 8px !important; }
+    .form-group input, .form-group textarea, .form-group select { padding: 6px 8px !important; font-size: 8px !important; }
 }
 
-/* Desktop 3 columns */
+/* 580px medium */
+@media (min-width: 401px) and (max-width: 580px) {
+    .tools-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 500px !important; gap: 10px !important; }
+    .profile-image-wrapper { width: 120px !important; height: 150px !important; }
+    .page-title { font-size: 20px !important; }
+}
+
+/* Desktop */
 @media (min-width: 1025px) {
     .tools-grid { grid-template-columns: repeat(3, 1fr) !important; max-width: 800px !important; }
+    .profile-image-wrapper { width: 160px !important; height: 190px !important; }
 }
