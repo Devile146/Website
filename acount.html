@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Fahad Tech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .account-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 15px 30px;
+        }
+        .account-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .account-header h1 {
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        .account-card {
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .account-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 12px;
+        }
+        .credit-big {
+            text-align: center;
+            padding: 20px;
+        }
+        .credit-big .number {
+            font-size: 48px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+        }
+        .credit-big .label {
+            color: #c0c0d0;
+            font-size: 13px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-row .label {
+            color: #c0c0d0;
+            font-size: 12px;
+        }
+        .info-row .value {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #FF4D91, #FF8C42);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .logout-btn:hover {
+            transform: translateY(-2px);
+        }
+        .notification-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body class="account-page">
+    <div class="page-background" style="background-image: url('https://raw.githubusercontent.com/Devile146/Website/4fa3ef526aa0cc94243d15dda5061de7fad7e304/Imag1.jpg');"></div>
+    <div class="bg-glow-purple"></div>
+    <div class="bg-glow-blue"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">FT</div>
+                <div class="logo-text">
+                    <span class="logo-name">FAHAD TECH</span>
+                    <span class="logo-tagline">Premium Platform</span>
+                </div>
+            </a>
+            <div class="nav-center">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="tools.html" class="nav-link">Tools</a>
+                <a href="pricing.html" class="nav-link">Pricing</a>
+                <a href="account.html" class="nav-link active">Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="account-container">
+        <div class="account-header">
+            <h1>👤 <span class="gradient-text">My Account</span></h1>
+        </div>
+
+        <!-- Credit Balance -->
+        <div class="account-card credit-big">
+            <div class="number" id="creditNumber">0</div>
+            <div class="label">Credits Available</div>
+        </div>
+
+        <!-- User Info -->
+        <div class="account-card">
+            <h3><i class="fas fa-user"></i> Profile Info</h3>
+            <div class="info-row">
+                <span class="label">Email</span>
+                <span class="value" id="userEmailDisplay">-</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Account Status</span>
+                <span class="value" id="accountStatusDisplay">-</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Member Since</span>
+                <span class="value" id="memberSince">-</span>
+            </div>
+        </div>
+
+        <!-- Purchase History -->
+        <div class="account-card">
+            <h3><i class="fas fa-shopping-cart"></i> Purchase History</h3>
+            <div id="purchaseHistoryContainer">
+                <p style="color:#c0c0d0;text-align:center;">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="account-card">
+            <h3><i class="fas fa-bell"></i> Notifications</h3>
+            <div id="notificationsContainer">
+                <p style="color:#c0c0d0;text-align:center;">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <button class="logout-btn" onclick="logoutUser()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/payment.js"></script>
+    <script>
+        auth.onAuthStateChanged(async function(user) {
+            if (!user) {
+                localStorage.setItem('redirectAfterLogin', 'account.html');
+                window.location.href = 'auth.html';
+                return;
+            }
+            
+            // Display user email
+            document.getElementById('userEmailDisplay').textContent = user.email;
+            
+            // Load user data
+            const userData = await getCurrentUserData();
+            if (userData) {
+                document.getElementById('creditNumber').textContent = userData.credits || 0;
+                document.getElementById('accountStatusDisplay').textContent = userData.accountStatus || 'active';
+                
+                if (userData.createdAt) {
+                    const date = new Date(userData.createdAt.seconds * 1000);
+                    document.getElementById('memberSince').textContent = date.toLocaleDateString();
+                }
+            }
+            
+            // Load purchases
+            loadPurchaseHistory();
+            
+            // Load notifications
+            loadUserNotifications(user.uid);
+        });
+    </script>
+</body>
+</html>
