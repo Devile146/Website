@@ -11,8 +11,13 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="home-page">
-    <!-- Background Layers -->
-    <div class="page-background"></div>
+    <!-- Background Video -->
+    <div class="page-background">
+        <video id="bgVideo" autoplay muted loop playsinline>
+            <source src="https://raw.githubusercontent.com/Devile146/Website/main/Vibe_Gallery.mp4" type="video/mp4">
+        </video>
+        <div class="bg-overlay"></div>
+    </div>
     <div class="bg-glow-purple"></div>
     <div class="bg-glow-blue"></div>
 
@@ -41,11 +46,20 @@
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Search...">
                 </div>
-                <button class="hamburger" id="hamburgerBtn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+                <div class="nav-auth">
+                    <a href="auth.html" class="nav-auth-btn login-btn" id="loginBtn">
+                        <i class="fas fa-user"></i> Login
+                    </a>
+                    <a href="account.html" class="nav-auth-btn account-btn" id="accountBtn" style="display:none;">
+                        <i class="fas fa-user-circle"></i> <span id="navUserEmail">Account</span>
+                        <span class="credit-badge" id="navCredits">0</span>
+                    </a>
+                    <button class="hamburger" id="hamburgerBtn">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -57,6 +71,8 @@
             <a href="toolkit-maker.html">Toolkit Maker</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
+            <a href="auth.html" id="mobileLoginBtn">Login</a>
+            <a href="account.html" id="mobileAccountBtn" style="display:none;">Account</a>
         </div>
     </nav>
 
@@ -86,6 +102,10 @@
             <a href="contact.html" class="sidebar-link">
                 <i class="fas fa-envelope"></i>
                 <span>Contact</span>
+            </a>
+            <a href="account.html" class="sidebar-link" id="sidebarAccountBtn" style="display:none;">
+                <i class="fas fa-user-circle"></i>
+                <span>Account</span>
             </a>
         </div>
         <div class="sidebar-footer">
@@ -228,6 +248,29 @@
         </section>
     </main>
 
+    <!-- Credit Purchase Modal -->
+    <div class="purchase-modal" id="purchaseModal" style="display:none;">
+        <div class="purchase-modal-content">
+            <button class="purchase-close" onclick="closePurchaseModal()">&times;</button>
+            <h3>💎 <span class="gradient-text">Need More Credits?</span></h3>
+            <p id="purchaseModalMsg">You need more credits to access this feature.</p>
+            <div class="purchase-mini-packs" id="purchaseMiniPacks">
+                <!-- Will be filled by JS -->
+            </div>
+            <button class="purchase-view-all" onclick="window.location.href='pricing.html'">
+                View All Packages <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/credits.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/script.js"></script>
 </body>
-                        </html>
+    </html>
