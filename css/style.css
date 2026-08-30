@@ -1,6 +1,6 @@
 /* ============================================================
    FAHAD TECH - FINAL COMPLETE CSS
-   Halka Shadow + Fixed Background + All Fixed
+   All Issues Fixed - Background Working
    ============================================================ */
 
 :root {
@@ -36,7 +36,7 @@ a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: inherit; border: none; background: none; }
 input, textarea, select { font-family: inherit; }
 
-/* ============ TEXT - WHITE + Halka Black Shadow ============ */
+/* ============ TEXT - WHITE + Halka Shadow ============ */
 h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
     color: #ffffff !important;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4) !important;
@@ -56,30 +56,32 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
     text-shadow: none !important;
 }
 
-/* ============ BACKGROUND - FIXED (Scroll pe bhi fixed) ============ */
+/* ============ BACKGROUND - FIXED (Working) ============ */
 .page-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
     z-index: -3;
     filter: saturate(1.1) brightness(1.05);
 }
 
+/* ==== DIRECT BACKGROUND IMAGE - EDIT THIS URL ==== */
 .home-page .page-background,
 .tools-page .page-background,
 .categories-page .page-background,
 .about-page .page-background,
 .contact-page .page-background,
 .toolkit-page .page-background {
-    background-image: url("https://githubusercontent.com/Devile146/Website/3217cfd38a0cd2c5ee15ec34da2e6130893c2da5/Photo.jpg");
+    background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/Photo.jpg") !important;
 }
 
+/* ==== FALLBACK - Agar image na aaye toh ==== */
 .page-background::after {
     content: '';
     position: absolute;
@@ -99,7 +101,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
     50% { opacity: 0.4; }
 }
 
-/* ============ WHITE GLASS BOXES - Halka Shadow ============ */
+/* ============ GLASS BOXES ============ */
 .hero-panel,
 .preview-card,
 .tool-card,
@@ -1077,32 +1079,34 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 
 @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-   }
+}
+
 /* ============================================================
-   EMERGENCY BACKGROUND FIX - DIRECT IMAGE URL
-=========================================================== */
-.page-background {
+   FINAL BACKGROUND FIX - EDIT THIS URL
+   ============================================================ */
+   
+/* ==== AGAR Photo.jpg NAHI HAI TOH YEH URL BADAL DEIN ==== */
+.home-page .page-background,
+.tools-page .page-background,
+.categories-page .page-background,
+.about-page .page-background,
+.contact-page .page-background,
+.toolkit-page .page-background {
     background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/Photo.jpg") !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
 }
 
-/* Agar Photo.jpg nahi chali toh yeh try karo */
-/* 
+/* ==== FALLBACK - Agar image na aaye ==== */
 .page-background {
-    background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/imag1.jpg") !important;
+    background-color: #0a0c1e !important;
 }
-*/
 
-/* Agar dono nahi chale toh yeh fallback daalo */
 .page-background::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(5, 5, 16, 0.55);
+    inset: 0;
+    background: rgba(5, 5, 16, 0.08);
     z-index: 1;
-}
+                                   }
