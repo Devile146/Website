@@ -1078,3 +1078,31 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
    }
+/* ============================================================
+   EMERGENCY BACKGROUND FIX - DIRECT IMAGE URL
+=========================================================== */
+.page-background {
+    background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/Photo.jpg") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Agar Photo.jpg nahi chali toh yeh try karo */
+/* 
+.page-background {
+    background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/imag1.jpg") !important;
+}
+*/
+
+/* Agar dono nahi chale toh yeh fallback daalo */
+.page-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 16, 0.55);
+    z-index: 1;
+}
