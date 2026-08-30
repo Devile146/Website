@@ -77,7 +77,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 .about-page .page-background,
 .contact-page .page-background,
 .toolkit-page .page-background {
-    background-image: url("https://raw.github.com/Devile146/Website/blob/dc4f613f4756a8b81320e8c41e1101e1c3dff312/imag1.jpg");
+    background-image: url("https://raw.githubusercontent.com/Devile146/Website/dc4f613f4756a8b81320e8c41e1101e1c3dff312/imag1.jpg");
 }
 
 .page-background::after {
