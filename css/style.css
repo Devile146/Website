@@ -78,7 +78,7 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
 .about-page .page-background,
 .contact-page .page-background,
 .toolkit-page .page-background {
-    background-image: url("https://github.com/Devile146/Website/blob/80cd9cde8726ff54a8c9f5cbde294787757acb6c/Photo.jpg") !important;
+    background-image: url("https://raw.githubusercontent.com/Devile146/Website/main/Photo.jpg") !important;
 }
 
 /* ==== FALLBACK - Agar image na aaye toh ==== */
@@ -1109,4 +1109,4 @@ h1, h2, h3, h4, h5, h6, p, span, a, button, label, strong, li, div {
     inset: 0;
     background: rgba(5, 5, 16, 0.08);
     z-index: 1;
-                                   }
+                }
