@@ -1,11 +1,10 @@
-// =========================
-// FAHAD TECH - CREDIT SYSTEM
-// =========================
+// ==========================================
+// FAHAD TECH - CREDIT SYSTEM (STRICT TRANSACTION)
+// ==========================================
 
 const TOOLKIT_COST = 25;
 const TOOL_COST = 5;
 
-// Check if user has enough credits
 function checkCredits(requiredCredits) {
     return new Promise((resolve, reject) => {
         if (!currentUser) {
@@ -23,16 +22,17 @@ function checkCredits(requiredCredits) {
             return;
         }
         
-        if ((currentUserData.credits || 0) < requiredCredits) {
+        const currentCredits = typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
+        
+        if (currentCredits < requiredCredits) {
             reject(new Error('Insufficient credits'));
             return;
         }
         
-        resolve(currentUserData.credits);
+        resolve(currentCredits);
     });
 }
 
-// Deduct credits using Firestore transaction
 function deductCredits(amount, action, details) {
     return new Promise((resolve, reject) => {
         if (!currentUser) {
@@ -49,7 +49,7 @@ function deductCredits(amount, action, details) {
                 }
                 
                 const userData = doc.data();
-                const currentCredits = userData.credits || 0;
+                const currentCredits = typeof userData.credits === 'number' ? userData.credits : 0;
                 
                 if (userData.accountStatus === 'disabled') {
                     throw new Error('Account is disabled');
@@ -83,7 +83,6 @@ function deductCredits(amount, action, details) {
     });
 }
 
-// Log transaction
 function logTransaction(action, details, amount) {
     if (!currentUser) return;
     const transactionData = {
@@ -100,36 +99,36 @@ function logTransaction(action, details, amount) {
     });
 }
 
-// Update credits display
 function updateCreditsDisplay(credits) {
+    const validCredits = typeof credits === 'number' ? credits : 0;
+    
     const navCredits = document.getElementById('navCredits');
     if (navCredits) {
-        navCredits.textContent = credits;
+        navCredits.textContent = validCredits;
     }
     
     const accountCredits = document.getElementById('accountCredits');
     if (accountCredits) {
-        accountCredits.textContent = credits;
+        accountCredits.textContent = validCredits;
     }
     
     const currentCreditsDisplay = document.getElementById('currentCreditsDisplay');
     if (currentCreditsDisplay) {
-        currentCreditsDisplay.textContent = credits;
+        currentCreditsDisplay.textContent = validCredits;
     }
     
     const unlockCurrentCredits = document.getElementById('unlockCurrentCredits');
     if (unlockCurrentCredits) {
-        unlockCurrentCredits.textContent = credits;
+        unlockCurrentCredits.textContent = validCredits;
     }
 }
 
-// Show insufficient credits modal
 function showInsufficientCredits(required = 25) {
     const modal = document.getElementById('insufficientModal');
     const currentCreditsDisplay = document.getElementById('currentCreditsDisplay');
     const requiredCreditsDisplay = document.getElementById('requiredCreditsDisplay');
     
-    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
+    const credits = currentUserData && typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
     
     if (currentCreditsDisplay) {
         currentCreditsDisplay.textContent = credits;
@@ -142,7 +141,6 @@ function showInsufficientCredits(required = 25) {
     }
 }
 
-// Close insufficient credits modal
 function closeInsufficientModal() {
     const modal = document.getElementById('insufficientModal');
     if (modal) {
@@ -150,13 +148,11 @@ function closeInsufficientModal() {
     }
 }
 
-// Go to buy credits
 function goToBuyCredits() {
     closeInsufficientModal();
     window.location.href = 'buy-credits.html';
 }
 
-// Check tool access (5 Credits)
 function checkToolAccess(toolName, toolLink) {
     if (!currentUser) {
         openAuthModal('login');
@@ -168,7 +164,7 @@ function checkToolAccess(toolName, toolLink) {
         return;
     }
     
-    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
+    const credits = currentUserData && typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
     if (credits < TOOL_COST) {
         showInsufficientCredits(TOOL_COST);
         return;
@@ -179,4 +175,4 @@ function checkToolAccess(toolName, toolLink) {
     }).catch((error) => {
         showToast(error.message, 'error');
     });
-                                                         }
+}
