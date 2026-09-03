@@ -1,5 +1,5 @@
 // =========================
-// FAHAD TECH - AUTHENTICATION
+// FAHAD TECH - AUTHENTICATION (FIXED)
 // =========================
 
 // Track if auth state is being processed
@@ -10,7 +10,6 @@ const MAX_AUTH_RETRIES = 3;
 // Auth state listener with proper handling
 auth.onAuthStateChanged(function(user) {
     if (authStateProcessing) {
-        // Avoid duplicate processing
         return;
     }
     authStateProcessing = true;
@@ -18,7 +17,8 @@ auth.onAuthStateChanged(function(user) {
     try {
         if (user) {
             currentUser = user;
-            loadUserDataSafely(user);
+            // Ensure user document exists before loading data
+            ensureUserDocumentExists(user);
         } else {
             currentUser = null;
             currentUserData = null;
@@ -32,59 +32,38 @@ auth.onAuthStateChanged(function(user) {
     }
 });
 
-// Safe user data loader with retry and error handling
-function loadUserDataSafely(user) {
-    // Check if we already have data for this user
-    if (currentUserData && currentUserData.uid === user.uid) {
-        updateUserUI(user, currentUserData);
-        return;
-    }
-    
+// Ensure user document exists in Firestore
+function ensureUserDocumentExists(user) {
     const userRef = db.collection('users').doc(user.uid);
     
-    // Set a timeout to prevent infinite loading
-    let loadingTimeout = setTimeout(function() {
-        console.warn('User data loading timed out, using fallback');
-        useFallbackUserData(user);
-    }, 5000);
-    
     userRef.get().then((doc) => {
-        clearTimeout(loadingTimeout);
-        authStateRetryCount = 0; // Reset retry count on success
-        
         if (doc.exists) {
+            // Document exists, load data
             currentUserData = doc.data();
             updateUserUI(user, currentUserData);
+            
+            // If on account page, update account display
+            if (document.getElementById('accountLoading')) {
+                displayAccountData(currentUserData);
+            }
         } else {
             // Document doesn't exist - create it
-            createUserDocumentSafely(user);
+            createUserDocumentAndLoad(user);
         }
     }).catch((error) => {
-        clearTimeout(loadingTimeout);
-        console.error('Error loading user data:', error);
-        
-        // Retry logic
-        if (authStateRetryCount < MAX_AUTH_RETRIES) {
-            authStateRetryCount++;
-            setTimeout(() => {
-                loadUserDataSafely(user);
-            }, 1000 * authStateRetryCount);
-            return;
-        }
-        
-        // Use fallback after retries
-        useFallbackUserData(user);
-        showToast('Unable to load user data. Some features may be limited.', 'warning');
+        console.error('Error checking user document:', error);
+        // Try to create document anyway
+        createUserDocumentAndLoad(user);
     });
 }
 
-// Create user document safely
-function createUserDocumentSafely(user) {
+// Create user document and load data
+function createUserDocumentAndLoad(user) {
     const userData = {
         uid: user.uid,
         displayName: user.displayName || 'User',
         email: user.email,
-        credits: 0,
+        credits: 25, // Give 25 free credits to new users
         accountStatus: 'active',
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -93,37 +72,30 @@ function createUserDocumentSafely(user) {
     db.collection('users').doc(user.uid).set(userData).then(() => {
         currentUserData = userData;
         updateUserUI(user, userData);
-        showToast('Welcome to Fahad Tech!', 'success');
+        
+        // If on account page, display data
+        if (document.getElementById('accountLoading')) {
+            displayAccountData(userData);
+        }
+        
+        showToast('Account created! You have 25 free credits.', 'success');
     }).catch((error) => {
         console.error('Error creating user document:', error);
         // Use fallback data
-        useFallbackUserData(user);
-        showToast('Unable to create user profile. Some features may be limited.', 'warning');
+        currentUserData = userData;
+        updateUserUI(user, userData);
+        showToast('Unable to save profile data. Please refresh.', 'warning');
     });
-}
-
-// Use fallback user data when Firestore is unavailable
-function useFallbackUserData(user) {
-    currentUserData = {
-        uid: user.uid,
-        displayName: user.displayName || 'User',
-        email: user.email,
-        credits: 0,
-        accountStatus: 'active',
-        createdAt: new Date(),
-        isFallback: true
-    };
-    updateUserUI(user, currentUserData);
 }
 
 // Load user data (legacy function for compatibility)
 function loadUserData(user) {
-    loadUserDataSafely(user);
+    ensureUserDocumentExists(user);
 }
 
 // Create user document (legacy function for compatibility)
 function createUserDocument(user) {
-    createUserDocumentSafely(user);
+    createUserDocumentAndLoad(user);
 }
 
 // Update user interface
@@ -158,6 +130,53 @@ function updateUserUI(user, userData) {
     }
 }
 
+// Display account data on account page
+function displayAccountData(data) {
+    const loadingEl = document.getElementById('accountLoading');
+    const contentEl = document.getElementById('accountContent');
+    const loginRequiredEl = document.getElementById('loginRequired');
+    
+    if (!loadingEl || !contentEl || !loginRequiredEl) return;
+    
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+    loginRequiredEl.style.display = 'none';
+    
+    // Update profile info
+    const nameEl = document.getElementById('accountName');
+    const emailEl = document.getElementById('accountEmail');
+    const creditsEl = document.getElementById('accountCredits');
+    
+    if (nameEl) nameEl.textContent = data.displayName || 'User';
+    if (emailEl) emailEl.textContent = data.email || 'No email';
+    if (creditsEl) creditsEl.textContent = data.credits || 0;
+    
+    // Account status
+    const statusEl = document.getElementById('accountStatus');
+    if (statusEl) {
+        if (data.accountStatus === 'disabled') {
+            statusEl.innerHTML = '<span class="status-dot disabled"></span><span>Disabled</span>';
+        } else {
+            statusEl.innerHTML = '<span class="status-dot active"></span><span>Active</span>';
+        }
+    }
+    
+    // Member since
+    const memberSinceEl = document.getElementById('memberSince');
+    if (memberSinceEl) {
+        if (data.createdAt && data.createdAt.toDate) {
+            const date = data.createdAt.toDate();
+            memberSinceEl.textContent = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } else {
+            memberSinceEl.textContent = 'Today';
+        }
+    }
+}
+
 // Show guest state
 function showGuestState() {
     const guestButtons = document.getElementById('guestButtons');
@@ -178,7 +197,6 @@ function showGuestState() {
         `;
     }
     
-    // Clear user data
     currentUserData = null;
 }
 
@@ -255,7 +273,6 @@ function handleLogin(event) {
         loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
     }).catch((error) => {
         let errorMessage = error.message;
-        // User-friendly error messages
         if (error.code === 'auth/user-not-found') {
             errorMessage = 'No account found with this email. Please register first.';
         } else if (error.code === 'auth/wrong-password') {
@@ -307,7 +324,7 @@ function handleRegister(event) {
                 uid: user.uid,
                 displayName: name,
                 email: email,
-                credits: 0,
+                credits: 25, // 25 free credits for new users
                 accountStatus: 'active',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -316,7 +333,7 @@ function handleRegister(event) {
             return db.collection('users').doc(user.uid).set(userData);
         });
     }).then(() => {
-        showToast('Account created successfully!', 'success');
+        showToast('Account created successfully! You have 25 free credits.', 'success');
         closeAuthModal();
         registerBtn.disabled = false;
         registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
@@ -387,4 +404,4 @@ function showToast(message, type = 'info') {
             toast.remove();
         }, 300);
     }, 4000);
-}
+                   }
