@@ -171,7 +171,7 @@
                     </div>
                     <div class="member-date">
                         <i class="fas fa-clock"></i>
-                        <span id="memberSince">Loading...</span>
+                        <span id="memberSince">Active Member</span>
                     </div>
                 </div>
             </div>
@@ -184,7 +184,7 @@
                         <i class="fas fa-tools"></i>
                         <span>Browse Tools</span>
                     </a>
-                    <a href="toolkit-maker.html" class="action-card" onclick="checkToolkitAccess(); return false;">
+                    <a href="toolkit-maker.html" class="action-card">
                         <i class="fas fa-magic"></i>
                         <span>Toolkit Maker</span>
                     </a>
@@ -284,118 +284,117 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Load scripts -->
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/credits.js"></script>
-    
     <script>
-    // ========================================
-    // ACCOUNT PAGE - COMPLETE FIX
-    // ========================================
-    
-    // Immediately check if user is logged in
-    (function() {
-        const user = auth.currentUser;
+        // Use global currentUser & currentUserData without redeclaring with 'let'
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                loadAccountData(user);
+            } else {
+                currentUser = null;
+                currentUserData = null;
+                showLoginRequired();
+                showGuestState();
+            }
+        });
         
-        if (user) {
-            // User is logged in - load account data
-            currentUser = user;
-            
-            // Try to load from Firestore
+        function loadAccountData(user) {
+            const loadingTimeout = setTimeout(() => {
+                if (currentUserData) {
+                    displayAccountData(currentUserData);
+                }
+            }, 4000);
+
             db.collection('users').doc(user.uid).get().then((doc) => {
-                const loadingEl = document.getElementById('accountLoading');
-                const contentEl = document.getElementById('accountContent');
-                const loginRequiredEl = document.getElementById('loginRequired');
-                
+                clearTimeout(loadingTimeout);
                 if (doc.exists) {
-                    const data = doc.data();
-                    currentUserData = data;
-                    
-                    // Hide loading, show content
-                    loadingEl.style.display = 'none';
-                    contentEl.style.display = 'block';
-                    loginRequiredEl.style.display = 'none';
-                    
-                    // Fill data
-                    document.getElementById('accountName').textContent = data.displayName || user.displayName || 'User';
-                    document.getElementById('accountEmail').textContent = data.email || user.email || '';
-                    document.getElementById('accountCredits').textContent = data.credits || 0;
-                    
-                    // Member since
-                    if (data.createdAt && data.createdAt.toDate) {
-                        const date = data.createdAt.toDate();
-                        document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                    } else {
-                        document.getElementById('memberSince').textContent = 'Today';
-                    }
-                    
-                    // Update navbar
-                    if (typeof updateUserUI === 'function') {
-                        updateUserUI(user, data);
-                    }
-                    
+                    currentUserData = doc.data();
+                    displayAccountData(currentUserData);
+                    updateUserUI(user, currentUserData);
                 } else {
-                    // Create user document
-                    const userData = {
+                    const fallbackData = {
                         uid: user.uid,
                         displayName: user.displayName || 'User',
                         email: user.email,
-                        credits: 25,
+                        credits: 0,
                         accountStatus: 'active',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     };
-                    
-                    db.collection('users').doc(user.uid).set(userData).then(() => {
-                        currentUserData = userData;
-                        loadingEl.style.display = 'none';
-                        contentEl.style.display = 'block';
-                        loginRequiredEl.style.display = 'none';
-                        
-                        document.getElementById('accountName').textContent = userData.displayName;
-                        document.getElementById('accountEmail').textContent = userData.email;
-                        document.getElementById('accountCredits').textContent = userData.credits;
-                        document.getElementById('memberSince').textContent = 'Today';
-                        
-                        if (typeof updateUserUI === 'function') {
-                            updateUserUI(user, userData);
-                        }
+                    db.collection('users').doc(user.uid).set(fallbackData).then(() => {
+                        currentUserData = fallbackData;
+                        displayAccountData(fallbackData);
+                        updateUserUI(user, fallbackData);
+                    }).catch(() => {
+                        displayAccountData(fallbackData);
                     });
                 }
             }).catch((error) => {
-                console.error('Error loading account:', error);
-                // Show error but don't hide content completely
-                const loadingEl = document.getElementById('accountLoading');
-                loadingEl.innerHTML = '<p style="color: #FF4D91;">Error loading account. Please refresh.</p>';
+                clearTimeout(loadingTimeout);
+                console.error('Error loading account data:', error);
+                const localData = {
+                    displayName: user.displayName || 'User',
+                    email: user.email,
+                    credits: 0,
+                    accountStatus: 'active'
+                };
+                displayAccountData(localData);
+                showToast('Loaded offline profile', 'info');
             });
-        } else {
-            // User not logged in
-            const loadingEl = document.getElementById('accountLoading');
-            const contentEl = document.getElementById('accountContent');
-            const loginRequiredEl = document.getElementById('loginRequired');
-            
-            loadingEl.style.display = 'none';
-            contentEl.style.display = 'none';
-            loginRequiredEl.style.display = 'flex';
         }
-    })();
-    
-    // Listen for auth state changes
-    auth.onAuthStateChanged(function(user) {
-        if (user) {
-            currentUser = user;
-            // Reload if still on loading screen
-            const loadingEl = document.getElementById('accountLoading');
-            if (loadingEl && loadingEl.style.display !== 'none') {
-                location.reload();
+        
+        function displayAccountData(data) {
+            const loading = document.getElementById('accountLoading');
+            const content = document.getElementById('accountContent');
+            const loginReq = document.getElementById('loginRequired');
+            
+            if (loading) loading.style.display = 'none';
+            if (content) content.style.display = 'block';
+            if (loginReq) loginReq.style.display = 'none';
+            
+            const nameEl = document.getElementById('accountName');
+            const emailEl = document.getElementById('accountEmail');
+            const creditsEl = document.getElementById('accountCredits');
+            const statusEl = document.getElementById('accountStatus');
+            const memberSinceEl = document.getElementById('memberSince');
+            
+            if (nameEl) nameEl.textContent = data.displayName || 'User';
+            if (emailEl) emailEl.textContent = data.email || '';
+            if (creditsEl) creditsEl.textContent = data.credits || 0;
+            
+            if (statusEl) {
+                if (data.accountStatus === 'disabled') {
+                    statusEl.innerHTML = '<span class="status-dot disabled" style="background:#ef4444;"></span><span>Disabled</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="status-dot active" style="background:#22c55e;"></span><span>Active</span>';
+                }
+            }
+            
+            if (memberSinceEl) {
+                if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                    const date = data.createdAt.toDate();
+                    memberSinceEl.textContent = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                } else {
+                    memberSinceEl.textContent = 'Active Member';
+                }
             }
         }
-    });
+        
+        function showLoginRequired() {
+            const loading = document.getElementById('accountLoading');
+            const content = document.getElementById('accountContent');
+            const loginReq = document.getElementById('loginRequired');
+            
+            if (loading) loading.style.display = 'none';
+            if (content) content.style.display = 'none';
+            if (loginReq) loginReq.style.display = 'flex';
+        }
     </script>
 </body>
 </html>
