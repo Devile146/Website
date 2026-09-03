@@ -147,160 +147,75 @@ let selectedTheme = 'glass';
 let profileImageData = null;
 let editingProductIndex = -1;
 let isGenerating = false;
-let toolkitAccessGranted = false;
 
-// Initialize
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     renderThemes();
-    initMobileMenu();
     initProductForm();
-    showWelcomeMessage();
 });
 
-// Initialize product form with placeholder
 function initProductForm() {
     const productForm = document.getElementById('productForm');
     if (productForm) {
-        // Set initial state
         productForm.style.display = 'none';
     }
-    
-    // Show a hint message if no products
     renderProducts();
 }
 
-// Show welcome message for new users
-function showWelcomeMessage() {
-    const productsList = document.getElementById('productsList');
-    if (productsList && products.length === 0) {
-        productsList.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: #B8B8C8; font-size: 13px;">
-                <i class="fas fa-plus-circle" style="font-size: 24px; color: #6D5CFF; margin-bottom: 8px; display: block;"></i>
-                No products added yet. Click "Add Product" to start building your toolkit.
-            </div>
-        `;
-    }
-}
-
 // =========================
-// AUTHENTICATION CHECK
+// AUTHENTICATION & ACCESS CHECK
 // =========================
 
-function checkToolkitMakerAccess() {
+function checkToolkitMakerAccess(user) {
     const loadingOverlay = document.getElementById('toolkitLoadingOverlay');
     const mainContent = document.getElementById('toolkitMainContent');
     const protectedAccess = document.getElementById('protectedAccess');
-    const loadingText = document.getElementById('loadingText');
     
-    // Safety check - if elements don't exist, return
-    if (!loadingOverlay || !mainContent || !protectedAccess) {
-        console.warn('Toolkit Maker elements not found');
+    const activeUser = user || currentUser || auth.currentUser;
+    
+    if (!activeUser) {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'none';
+        if (protectedAccess) protectedAccess.style.display = 'flex';
         return;
     }
     
-    // Check if user is logged in
-    if (!currentUser) {
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'none';
-        protectedAccess.style.display = 'flex';
-        return;
-    }
-    
-    // Check account status
-    if (currentUserData && currentUserData.accountStatus === 'disabled') {
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'none';
-        protectedAccess.innerHTML = `
-            <div class="protected-box">
-                <div class="protected-icon">
-                    <i class="fas fa-ban"></i>
-                </div>
-                <h2>Account Disabled</h2>
-                <p>Your account is currently disabled. Please contact support.</p>
-            </div>
-        `;
-        protectedAccess.style.display = 'flex';
-        return;
-    }
-    
-    // Check if we've already granted access
-    if (toolkitAccessGranted) {
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'block';
-        protectedAccess.style.display = 'none';
-        return;
-    }
-    
-    // Check credits
-    if (!currentUserData || currentUserData.credits < 20) {
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'none';
-        protectedAccess.style.display = 'none';
-        showInsufficientCredits(20);
-        return;
-    }
-    
-    // Deduct 20 credits for access
-    if (loadingText) loadingText.textContent = 'Deducting 20 credits...';
-    
-    deductCreditsForToolkit().then(() => {
-        toolkitAccessGranted = true;
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'block';
-        protectedAccess.style.display = 'none';
-        showToast('20 credits deducted for Toolkit Maker access', 'success');
-        // Render products after access granted
+    // Fetch user details from Firestore
+    db.collection('users').doc(activeUser.uid).get().then((doc) => {
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        
+        let userData = doc.exists ? doc.data() : { credits: 0, accountStatus: 'active' };
+        currentUserData = userData;
+        
+        if (userData.accountStatus === 'disabled') {
+            if (mainContent) mainContent.style.display = 'none';
+            if (protectedAccess) {
+                protectedAccess.innerHTML = `
+                    <div class="protected-box">
+                        <div class="protected-icon"><i class="fas fa-ban"></i></div>
+                        <h2>Account Disabled</h2>
+                        <p>Your account is currently disabled. Please contact support.</p>
+                    </div>
+                `;
+                protectedAccess.style.display = 'flex';
+            }
+            return;
+        }
+        
+        // Show the builder UI immediately
+        if (protectedAccess) protectedAccess.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
+        
+        renderThemes();
         renderProducts();
-    }).catch((error) => {
-        loadingOverlay.style.display = 'none';
-        mainContent.style.display = 'none';
-        protectedAccess.style.display = 'none';
-        showToast(error.message, 'error');
-        // If error was insufficient credits, show the modal
-        if (error.message === 'Insufficient credits') {
-            showInsufficientCredits(20);
-        }
-    });
-}
-
-function deductCreditsForToolkit() {
-    const userRef = db.collection('users').doc(currentUser.uid);
-    
-    return db.runTransaction((transaction) => {
-        return transaction.get(userRef).then((doc) => {
-            if (!doc.exists) {
-                throw new Error('User data not found');
-            }
-            
-            const userData = doc.data();
-            const currentCredits = userData.credits || 0;
-            
-            if (userData.accountStatus === 'disabled') {
-                throw new Error('Account is disabled');
-            }
-            
-            if (currentCredits < 20) {
-                throw new Error('Insufficient credits');
-            }
-            
-            const newCredits = currentCredits - 20;
-            
-            transaction.update(userRef, {
-                credits: newCredits,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            return newCredits;
-        });
-    }).then((newCredits) => {
-        if (currentUserData) {
-            currentUserData.credits = newCredits;
-        }
-        const navCredits = document.getElementById('navCredits');
-        if (navCredits) {
-            navCredits.textContent = newCredits;
-        }
-        return newCredits;
+        updateUserUI(activeUser, userData);
+    }).catch((err) => {
+        console.error("Error accessing toolkit maker:", err);
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (protectedAccess) protectedAccess.style.display = 'none';
+        if (mainContent) mainContent.style.display = 'block';
+        renderThemes();
+        renderProducts();
     });
 }
 
@@ -332,14 +247,16 @@ function renderThemes() {
     `).join('');
 }
 
-// Select Theme
 function selectTheme(themeId) {
     selectedTheme = themeId;
     renderThemes();
     showToast('Theme selected: ' + themeId, 'info');
 }
 
-// Handle Image Upload
+// =========================
+// IMAGE HANDLING
+// =========================
+
 function handleImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -352,16 +269,14 @@ function handleImageUpload(event) {
     }
 }
 
-// Preview Image URL
 function previewImageUrl() {
-    const url = document.getElementById('profileImageUrl').value;
+    const url = document.getElementById('profileImageUrl').value.trim();
     if (url) {
         profileImageData = url;
         showProfilePreview(url);
     }
 }
 
-// Show Profile Preview
 function showProfilePreview(src) {
     const preview = document.getElementById('profilePreview');
     const img = document.getElementById('profilePreviewImg');
@@ -371,12 +286,16 @@ function showProfilePreview(src) {
     }
 }
 
-// Show Product Form
+// =========================
+// PRODUCT MANAGEMENT
+// =========================
+
 function showProductForm() {
     const form = document.getElementById('productForm');
     if (form) {
         form.style.display = 'flex';
-        document.getElementById('productName').focus();
+        const nameInput = document.getElementById('productName');
+        if (nameInput) nameInput.focus();
     }
     editingProductIndex = -1;
     document.getElementById('productName').value = '';
@@ -385,12 +304,11 @@ function showProductForm() {
     document.getElementById('productType').value = 'free';
 }
 
-// Hide Product Form
 function hideProductForm() {
-    document.getElementById('productForm').style.display = 'none';
+    const form = document.getElementById('productForm');
+    if (form) form.style.display = 'none';
 }
 
-// Save Product
 function saveProduct() {
     const name = document.getElementById('productName').value.trim();
     const link = document.getElementById('productLink').value.trim();
@@ -418,7 +336,6 @@ function saveProduct() {
     renderProducts();
 }
 
-// Render Products
 function renderProducts() {
     const productsList = document.getElementById('productsList');
     if (!productsList) return;
@@ -436,8 +353,8 @@ function renderProducts() {
     productsList.innerHTML = products.map((product, index) => `
         <div class="product-item">
             <div class="product-item-info">
-                <span class="product-item-name">${product.name}</span>
-                <span class="product-item-type ${product.type}">${product.type}</span>
+                <span class="product-item-name">${escapeHtml(product.name)}</span>
+                <span class="product-item-type ${product.type}">${product.type.toUpperCase()}</span>
             </div>
             <div class="product-item-actions">
                 <button class="product-action-btn edit-action" onclick="editProduct(${index})">
@@ -451,19 +368,21 @@ function renderProducts() {
     `).join('');
 }
 
-// Edit Product
 function editProduct(index) {
     const product = products[index];
     editingProductIndex = index;
     document.getElementById('productName').value = product.name;
     document.getElementById('productLink').value = product.link;
-    document.getElementById('productAbout').value = product.about;
-    document.getElementById('productType').value = product.type;
-    document.getElementById('productForm').style.display = 'flex';
-    document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('productAbout').value = product.about || '';
+    document.getElementById('productType').value = product.type || 'free';
+    
+    const form = document.getElementById('productForm');
+    if (form) {
+        form.style.display = 'flex';
+        form.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
-// Delete Product
 function deleteProduct(index) {
     if (confirm('Delete this product?')) {
         products.splice(index, 1);
@@ -472,7 +391,10 @@ function deleteProduct(index) {
     }
 }
 
-// Generate Toolkit
+// =========================
+// GENERATE TOOLKIT
+// =========================
+
 function generateToolkit() {
     if (isGenerating) return;
     
@@ -490,7 +412,6 @@ function generateToolkit() {
     
     isGenerating = true;
     
-    // Show generation progress
     const progressDiv = document.getElementById('generationProgress');
     if (progressDiv) progressDiv.style.display = 'block';
     
@@ -513,7 +434,6 @@ function generateToolkit() {
         `).join('');
     }
     
-    // Simulate progress
     let stepIndex = 0;
     const interval = setInterval(() => {
         const stepsElements = document.querySelectorAll('.progress-step');
@@ -532,140 +452,139 @@ function generateToolkit() {
                 showGeneratedCode(code);
                 isGenerating = false;
                 showToast('Toolkit generated successfully!', 'success');
-            }, 500);
+            }, 300);
         }
-    }, 800);
+    }, 400);
 }
 
-// Build Toolkit Code
+// Build Clean Toolkit Code
 function buildToolkitCode() {
-    const toolkitName = document.getElementById('toolkitName').value.trim();
+    const toolkitName = document.getElementById('toolkitName').value.trim() || 'My Premium Toolkit';
     const toolkitAbout = document.getElementById('toolkitAbout').value.trim();
     const whatsapp = document.getElementById('whatsappNumber').value.trim();
     const telegram = document.getElementById('telegramUsername').value.trim();
     const youtube = document.getElementById('youtubeLink').value.trim();
-    const popupEnabled = document.getElementById('popupToggle').checked;
+    const popupToggle = document.getElementById('popupToggle');
+    const popupEnabled = popupToggle ? popupToggle.checked : false;
     
     const theme = themes.find(t => t.id === selectedTheme) || themes[3];
     const profileImg = profileImageData || 'https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg';
     
-    // Build products HTML - clean without unwanted text
-    const productsHTML = products.map((product, index) => {
+    // Products HTML
+    const productsHTML = products.map((product) => {
         const isFree = product.type === 'free';
-        const buttonAction = isFree 
-            ? `window.open('${product.link}', '_blank')` 
-            : `window.open('https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hello! I am interested in purchasing: ' + product.name)}', '_blank')`;
+        const cleanWhatsapp = whatsapp.replace(/[^0-9]/g, '');
         
-        // Clean description - only show if provided
+        let buttonAction = `window.open('${escapeJsString(product.link)}', '_blank')`;
+        if (!isFree && cleanWhatsapp) {
+            buttonAction = `window.open('https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent('Hello! I am interested in purchasing: ' + product.name)}', '_blank')`;
+        }
+        
         const descriptionHTML = product.about ? 
-            `<p style="color: ${theme.textColor}99; font-size: 13px; margin-bottom: 20px;">${product.about}</p>` : '';
+            `<p style="color: ${theme.textColor}; opacity: 0.8; font-size: 13px; line-height: 1.5; margin: 10px 0 20px;">${escapeHtml(product.about)}</p>` : '';
         
         return `
-        <div class="tool-card" style="background: ${theme.cardBg}; border: 1px solid ${theme.accent}40; border-radius: 16px; padding: 25px; transition: all 0.3s ease;">
-            <span class="badge" style="background: ${isFree ? 'rgba(74,222,128,0.15)' : 'rgba(255,215,0,0.15)'}; color: ${isFree ? '#4ade80' : '#ffd700'}; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">${isFree ? 'FREE' : 'PREMIUM'}</span>
-            <h3 style="color: ${theme.textColor}; font-size: 18px; font-weight: 700; margin: 12px 0 8px;">${product.name}</h3>
-            ${descriptionHTML}
-            <button onclick="${buttonAction}" style="background: ${isFree ? theme.accent : '#ffd700'}; color: ${isFree ? '#000000' : '#000000'}; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">${isFree ? 'Visit Tool' : 'Purchase Now'}</button>
+        <div class="tool-card" style="background: ${theme.cardBg}; border: 1px solid ${theme.accent}33; border-radius: 16px; padding: 24px; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <span class="badge" style="display: inline-block; background: ${isFree ? 'rgba(74,222,128,0.15)' : 'rgba(255,215,0,0.15)'}; color: ${isFree ? '#4ade80' : '#ffd700'}; padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">${isFree ? 'FREE' : 'PREMIUM'}</span>
+                <h3 style="color: ${theme.textColor}; font-size: 18px; font-weight: 700; margin: 14px 0 6px;">${escapeHtml(product.name)}</h3>
+                ${descriptionHTML}
+            </div>
+            <button onclick="${buttonAction}" style="background: ${isFree ? theme.accent : '#ffd700'}; color: #000000; border: none; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease; width: 100%; margin-top: 15px;">
+                ${isFree ? 'Visit Tool' : 'Purchase Now'}
+            </button>
         </div>`;
-    }).join('');
+    }).join('\n');
     
-    // Build contact HTML
+    // Contact Section
     const contactButtons = [];
     if (whatsapp) {
         const cleanNumber = whatsapp.replace(/[^0-9]/g, '');
-        contactButtons.push(`<a href="https://wa.me/${cleanNumber}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;background:rgba(74,222,128,0.15);color:#4ade80;font-size:22px;text-decoration:none;transition:all 0.3s ease;"><i class="fab fa-whatsapp"></i></a>`);
+        contactButtons.push(`<a href="https://wa.me/${cleanNumber}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(74,222,128,0.15);color:#4ade80;font-size:22px;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>`);
     }
     if (telegram) {
         const cleanTelegram = telegram.replace('@', '');
-        contactButtons.push(`<a href="https://t.me/${cleanTelegram}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;background:rgba(59,130,246,0.15);color:#3B82F6;font-size:22px;text-decoration:none;transition:all 0.3s ease;"><i class="fab fa-telegram"></i></a>`);
+        contactButtons.push(`<a href="https://t.me/${cleanTelegram}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(59,130,246,0.15);color:#3B82F6;font-size:22px;text-decoration:none;"><i class="fab fa-telegram"></i></a>`);
     }
     if (youtube) {
-        contactButtons.push(`<a href="${youtube}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;background:rgba(255,77,145,0.15);color:#FF4D91;font-size:22px;text-decoration:none;transition:all 0.3s ease;"><i class="fab fa-youtube"></i></a>`);
+        contactButtons.push(`<a href="${youtube}" target="_blank" style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(255,77,145,0.15);color:#FF4D91;font-size:22px;text-decoration:none;"><i class="fab fa-youtube"></i></a>`);
     }
     
     const contactHTML = contactButtons.length > 0 ? `
-    <div class="contact-section" style="text-align:center;margin-top:40px;">
-        <h3 style="color: ${theme.textColor}; font-size:20px; margin-bottom:20px;">Get In Touch</h3>
+    <div class="contact-section" style="text-align:center;margin-top:50px;padding:30px 20px;background:${theme.cardBg};border-radius:16px;border:1px solid ${theme.accent}20;">
+        <h3 style="color: ${theme.textColor}; font-size:20px; margin-bottom:15px; font-weight: 700;">Get In Touch</h3>
         <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">${contactButtons.join('')}</div>
     </div>` : '';
     
-    // Popup HTML - only if enabled
+    // Popup HTML
     const popupHTML = popupEnabled && contactButtons.length > 0 ? `
-    <div id="welcomePopup" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:${theme.cardBg};backdrop-filter:blur(20px);border:1px solid ${theme.accent}40;border-radius:20px;padding:30px;text-align:center;z-index:1000;box-shadow:0 25px 50px rgba(0,0,0,0.3);">
-        <h3 style="color:${theme.textColor};margin-bottom:10px;">Welcome to ${toolkitName}! 🎉</h3>
-        <p style="color:${theme.textColor}99;margin-bottom:20px;">Join us and stay connected!</p>
-        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px;">${contactButtons.join('')}</div>
-        <button onclick="document.getElementById('welcomePopup').style.display='none'" style="background:${theme.accent};color:#000;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;">Close</button>
+    <div id="welcomePopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
+        <div style="background:${theme.bg};border:1px solid ${theme.accent};border-radius:20px;padding:35px;text-align:center;max-width:400px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+            <h3 style="color:${theme.textColor};margin-bottom:10px;font-size:22px;">Welcome to ${escapeHtml(toolkitName)}!</h3>
+            <p style="color:${theme.textColor};opacity:0.8;margin-bottom:20px;font-size:14px;">Connect with us on our official channels:</p>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:25px;">${contactButtons.join('')}</div>
+            <button onclick="document.getElementById('welcomePopup').style.display='none'" style="background:${theme.accent};color:#000;border:none;padding:10px 28px;border-radius:8px;font-weight:700;cursor:pointer;">Enter Website</button>
+        </div>
     </div>` : '';
     
-    // Clean about section - only show if provided
     const aboutHTML = toolkitAbout ? `
-        <div class="about-section" style="text-align:center;max-width:600px;margin:0 auto 20px;">
-            <p style="color:${theme.textColor}99;font-size:14px;line-height:1.6;">${toolkitAbout}</p>
+        <div class="about-section" style="text-align:center;max-width:650px;margin:15px auto 30px;">
+            <p style="color:${theme.textColor};opacity:0.85;font-size:15px;line-height:1.6;">${escapeHtml(toolkitAbout)}</p>
         </div>` : '';
     
-    // Full generated code - CLEAN without unwanted text
-    const fullCode = `<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${toolkitName}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>${escapeHtml(toolkitName)}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: '${theme.font}';
+            font-family: ${theme.font};
             background: ${theme.bg};
             color: ${theme.textColor};
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 20px 15px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 20px;
         }
         .header {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px 15px 20px;
         }
         .profile-img {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid ${theme.accent};
-            box-shadow: 0 0 30px ${theme.accent}40;
-            animation: pulse 3s ease-in-out infinite;
+            box-shadow: 0 0 25px ${theme.accent}55;
             margin-bottom: 20px;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
         h1 {
-            font-size: 2.5rem;
-            font-weight: 900;
+            font-size: 2.2rem;
+            font-weight: 800;
             margin-bottom: 10px;
         }
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 20px;
-            margin-top: 40px;
+            margin-top: 30px;
         }
         .tool-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
         }
         footer {
             text-align: center;
-            padding: 30px;
-            margin-top: 40px;
-            border-top: 1px solid ${theme.accent}20;
-            font-size: 0.9rem;
+            padding: 40px 15px 20px;
+            font-size: 0.85rem;
             opacity: 0.7;
         }
     </style>
@@ -673,34 +592,34 @@ function buildToolkitCode() {
 <body>
     ${popupHTML}
     <div class="container">
-        <div class="header">
-            <img src="${profileImg}" alt="Profile" class="profile-img" onerror="this.src='https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg'">
-            <h1>${toolkitName}</h1>
+        <header class="header">
+            <img src="${profileImg}" alt="Profile" class="profile-img" onerror="this.style.display='none'">
+            <h1>${escapeHtml(toolkitName)}</h1>
             ${aboutHTML}
-        </div>
-        <div class="tools-grid">
+        </header>
+        <main class="tools-grid">
             ${productsHTML}
-        </div>
+        </main>
         ${contactHTML}
         <footer>
-            &copy; ${new Date().getFullYear()} ${toolkitName}. All Rights Reserved.
+            &copy; ${new Date().getFullYear()} ${escapeHtml(toolkitName)}. All Rights Reserved.
         </footer>
     </div>
 </body>
 </html>`;
-    
-    return fullCode;
 }
 
-// Show Generated Code
 function showGeneratedCode(code) {
-    document.getElementById('generationProgress').style.display = 'none';
-    document.getElementById('generatedOutput').style.display = 'block';
-    document.getElementById('generatedCode').value = code;
-    document.getElementById('generatedOutput').scrollIntoView({ behavior: 'smooth' });
+    const progress = document.getElementById('generationProgress');
+    const output = document.getElementById('generatedOutput');
+    const codeBox = document.getElementById('generatedCode');
+    
+    if (progress) progress.style.display = 'none';
+    if (output) output.style.display = 'block';
+    if (codeBox) codeBox.value = code;
+    if (output) output.scrollIntoView({ behavior: 'smooth' });
 }
 
-// Run Toolkit
 function runToolkit() {
     const code = document.getElementById('generatedCode').value;
     const previewModal = document.getElementById('previewModal');
@@ -712,22 +631,16 @@ function runToolkit() {
     }
 }
 
-// Close Preview
 function closePreview() {
     const modal = document.getElementById('previewModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    if (modal) modal.style.display = 'none';
 }
 
-// Copy Code
 function copyCode() {
     const codeBox = document.getElementById('generatedCode');
     if (!codeBox) return;
     
     codeBox.select();
-    codeBox.setSelectionRange(0, 99999);
-    
     navigator.clipboard.writeText(codeBox.value).then(() => {
         showToast('Code copied successfully!', 'success');
     }).catch(() => {
@@ -736,7 +649,6 @@ function copyCode() {
     });
 }
 
-// Download Code
 function downloadCode() {
     const code = document.getElementById('generatedCode').value;
     const toolkitName = document.getElementById('toolkitName').value.trim() || 'toolkit';
@@ -752,3 +664,16 @@ function downloadCode() {
     
     showToast('Toolkit downloaded successfully!', 'success');
 }
+
+// Helpers
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+}
+
+function escapeJsString(str) {
+    if (!str) return '';
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+            }
