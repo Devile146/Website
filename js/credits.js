@@ -1,5 +1,5 @@
 // =========================
-// FAHAD TECH - CREDIT SYSTEM
+// FAHAD TECH - CREDIT SYSTEM (FIXED)
 // =========================
 
 // Check if user has enough credits
@@ -186,7 +186,7 @@ function goToBuyCredits() {
     window.location.href = 'buy-credits.html';
 }
 
-// Check tool access
+// Check tool access (5 credits per tool)
 function checkToolAccess(toolName, toolLink) {
     if (!currentUser) {
         openAuthModal('login');
@@ -203,7 +203,7 @@ function checkToolAccess(toolName, toolLink) {
         return;
     }
     
-    // Deduct credits and open tool
+    // Deduct 5 credits and open tool
     deductCredits(5, 'tool_open', toolName).then(() => {
         window.open(toolLink, '_blank');
     }).catch((error) => {
@@ -211,7 +211,7 @@ function checkToolAccess(toolName, toolLink) {
     });
 }
 
-// Check toolkit maker access
+// Check toolkit maker access - FIXED: 5 credits like tools, opens toolkit page
 function checkToolkitAccess() {
     if (!currentUser) {
         openAuthModal('login');
@@ -223,13 +223,15 @@ function checkToolkitAccess() {
         return;
     }
     
-    if (!currentUserData || currentUserData.credits < 20) {
-        showInsufficientCredits(20);
+    // Check if user has at least 5 credits (same as tools)
+    if (!currentUserData || currentUserData.credits < 5) {
+        showInsufficientCredits(5);
         return;
     }
     
-    // Deduct credits and go to toolkit maker
-    deductCredits(20, 'toolkit_maker_access', 'Toolkit Maker access').then(() => {
+    // Deduct 5 credits and go to toolkit maker page
+    deductCredits(5, 'toolkit_maker_access', 'Toolkit Maker access').then(() => {
+        // Navigate to toolkit maker page
         window.location.href = 'toolkit-maker.html';
     }).catch((error) => {
         showToast(error.message, 'error');
