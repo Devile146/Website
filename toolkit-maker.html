@@ -16,7 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     
-    <!-- Firebase Configuration -->
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDHJflwa4XJ9koDqfsQ2tOCDm93TTUhKqA",
@@ -41,7 +40,7 @@
     <div class="loading-overlay" id="toolkitLoadingOverlay">
         <div class="loading-box">
             <div class="loading-spinner"></div>
-            <p id="loadingText">Checking Access...</p>
+            <p id="loadingText">Checking Account...</p>
         </div>
     </div>
 
@@ -66,21 +65,16 @@
             </div>
             
             <div class="nav-right">
-                <!-- User Account Area -->
                 <div class="user-account-area" id="userAccountArea">
-                    <!-- Guest State -->
                     <div class="guest-buttons" id="guestButtons">
                         <button class="nav-auth-btn login-btn" onclick="openAuthModal('login')">
-                            <i class="fas fa-sign-in-alt"></i>
-                            Login
+                            <i class="fas fa-sign-in-alt"></i> Login
                         </button>
                         <button class="nav-auth-btn register-btn" onclick="openAuthModal('register')">
-                            <i class="fas fa-user-plus"></i>
-                            Create Account
+                            <i class="fas fa-user-plus"></i> Create Account
                         </button>
                     </div>
                     
-                    <!-- Logged In State -->
                     <div class="user-logged-in" id="userLoggedIn" style="display: none;">
                         <div class="user-credits-display">
                             <i class="fas fa-coins"></i>
@@ -100,9 +94,7 @@
                 </div>
                 
                 <button class="hamburger" id="hamburgerBtn">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
@@ -114,39 +106,19 @@
             <a href="toolkit-maker.html" class="active">Toolkit Maker</a>
             <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
-            <div class="mobile-auth-area" id="mobileAuthArea">
-                <!-- Filled dynamically -->
-            </div>
+            <div class="mobile-auth-area" id="mobileAuthArea"></div>
         </div>
     </nav>
 
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-inner">
-            <a href="index.html" class="sidebar-link">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="tools.html" class="sidebar-link">
-                <i class="fas fa-tools"></i>
-                <span>Tools</span>
-            </a>
-            <a href="categories.html" class="sidebar-link">
-                <i class="fas fa-th-large"></i>
-                <span>Categories</span>
-            </a>
-            <a href="toolkit-maker.html" class="sidebar-link active">
-                <i class="fas fa-magic"></i>
-                <span>Toolkit Maker</span>
-            </a>
-            <a href="about.html" class="sidebar-link">
-                <i class="fas fa-user"></i>
-                <span>About</span>
-            </a>
-            <a href="contact.html" class="sidebar-link">
-                <i class="fas fa-envelope"></i>
-                <span>Contact</span>
-            </a>
+            <a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="tools.html" class="sidebar-link"><i class="fas fa-tools"></i><span>Tools</span></a>
+            <a href="categories.html" class="sidebar-link"><i class="fas fa-th-large"></i><span>Categories</span></a>
+            <a href="toolkit-maker.html" class="sidebar-link active"><i class="fas fa-magic"></i><span>Toolkit Maker</span></a>
+            <a href="about.html" class="sidebar-link"><i class="fas fa-user"></i><span>About</span></a>
+            <a href="contact.html" class="sidebar-link"><i class="fas fa-envelope"></i><span>Contact</span></a>
         </div>
         <div class="sidebar-footer">
             <a href="https://wa.me/923251138960" target="_blank" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
@@ -155,14 +127,45 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Unlock / Paywall Screen (Spend 25 Credits) -->
+    <div class="protected-access" id="toolkitUnlockPrompt" style="display: none;">
+        <div class="protected-box" style="max-width: 480px;">
+            <div class="protected-icon" style="background: rgba(255, 215, 0, 0.15); color: #ffd700; font-size: 36px;">
+                <i class="fas fa-magic"></i>
+            </div>
+            <h2>Unlock <span class="gradient-text">Toolkit Maker</span></h2>
+            <p style="margin: 12px 0 20px; font-size: 14px; line-height: 1.6; color: #B8B8C8;">
+                Spend <strong>25 Credits</strong> to unlock the Premium Toolkit Maker and generate your custom tools website.
+            </p>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8; display: block;">Your Balance:</span>
+                    <strong style="color: #4ade80; font-size: 18px;"><i class="fas fa-coins"></i> <span id="unlockCurrentCredits">0</span></strong>
+                </div>
+                <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8; display: block;">Cost:</span>
+                    <strong style="color: #ffd700; font-size: 18px;"><i class="fas fa-coins"></i> 25 Credits</strong>
+                </div>
+            </div>
+            <div class="protected-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-primary" id="unlockToolkitBtn" onclick="payAndOpenToolkit()" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px;">
+                    <i class="fas fa-unlock"></i> Unlock Now (25 Credits)
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='buy-credits.html'" style="width: 100%; justify-content: center; padding: 12px;">
+                    <i class="fas fa-shopping-cart"></i> Buy More Credits
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content (Shown after Unlocking with 25 Credits) -->
     <main class="main-content toolkit-main" id="toolkitMainContent" style="display: none;">
         <div class="toolkit-header">
-            <h1 class="page-title"> <span class="gradient-text">Toolkit Maker</span></h1>
+            <h1 class="page-title"><i class="fas fa-magic"></i> <span class="gradient-text">Toolkit Maker</span></h1>
             <p class="page-description">Create your own premium toolkit website in minutes</p>
         </div>
 
-        <!-- Toolkit Builder Form -->
         <div class="toolkit-builder">
             <!-- Section 1: Toolkit Information -->
             <div class="builder-section">
@@ -255,9 +258,7 @@
             <!-- Section 4: Theme Selector -->
             <div class="builder-section">
                 <h2 class="builder-section-title"><i class="fas fa-palette"></i> Select Theme</h2>
-                <div class="themes-grid" id="themesGrid">
-                    <!-- Themes will be generated by JS -->
-                </div>
+                <div class="themes-grid" id="themesGrid"></div>
             </div>
 
             <!-- Section 5: Generate -->
@@ -278,38 +279,24 @@
                     <i class="fas fa-code"></i> Your Website Code
                 </div>
                 <div class="code-actions">
-                    <button class="code-btn run-btn" onclick="runToolkit()">
-                        <i class="fas fa-play"></i> Run
-                    </button>
-                    <button class="code-btn copy-btn" onclick="copyCode()">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                    <button class="code-btn download-btn" onclick="downloadCode()">
-                        <i class="fas fa-download"></i> Download
-                    </button>
+                    <button class="code-btn run-btn" onclick="runToolkit()"><i class="fas fa-play"></i> Run</button>
+                    <button class="code-btn copy-btn" onclick="copyCode()"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="code-btn download-btn" onclick="downloadCode()"><i class="fas fa-download"></i> Download</button>
                 </div>
             </div>
             <textarea id="generatedCode" class="code-box" readonly></textarea>
         </div>
     </main>
 
-    <!-- Protected Access Required -->
+    <!-- Login Required Fallback -->
     <div class="protected-access" id="protectedAccess" style="display: none;">
         <div class="protected-box">
-            <div class="protected-icon">
-                <i class="fas fa-lock"></i>
-            </div>
+            <div class="protected-icon"><i class="fas fa-lock"></i></div>
             <h2>Access Required</h2>
             <p>Please login to access the Toolkit Maker</p>
             <div class="protected-actions">
-                <button class="btn-primary" onclick="openAuthModal('login')">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
-                </button>
-                <button class="btn-secondary" onclick="openAuthModal('register')">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
-                </button>
+                <button class="btn-primary" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
+                <button class="btn-secondary" onclick="openAuthModal('register')"><i class="fas fa-user-plus"></i> Create Account</button>
             </div>
         </div>
     </div>
@@ -322,8 +309,6 @@
                 <h2 id="authModalTitle">Login</h2>
                 <p id="authModalSubtitle">Access your account</p>
             </div>
-            
-            <!-- Login Form -->
             <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label><i class="fas fa-envelope"></i> Email</label>
@@ -337,16 +322,13 @@
                     </button>
                 </div>
                 <button type="submit" class="auth-submit-btn" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
+                    <i class="fas fa-sign-in-alt"></i> Login
                 </button>
                 <p class="auth-switch">
                     Don't have an account? 
                     <a href="javascript:void(0)" onclick="switchAuthMode('register')">Register here</a>
                 </p>
             </form>
-            
-            <!-- Register Form -->
             <form id="registerForm" class="auth-form" style="display: none;" onsubmit="handleRegister(event)">
                 <div class="form-group">
                     <label><i class="fas fa-user"></i> Display Name</label>
@@ -371,8 +353,7 @@
                     </button>
                 </div>
                 <button type="submit" class="auth-submit-btn" id="registerBtn">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
+                    <i class="fas fa-user-plus"></i> Create Account
                 </button>
                 <p class="auth-switch">
                     Already have an account? 
@@ -382,7 +363,7 @@
         </div>
     </div>
 
-    <!-- Insufficient Credits Modal -->
+    <!-- Insufficient Credits Modal (25 Credits) -->
     <div class="modal-overlay" id="insufficientModal" style="display: none;">
         <div class="modal-box insufficient-modal">
             <button class="modal-close" onclick="closeInsufficientModal()">&times;</button>
@@ -391,7 +372,7 @@
                     <i class="fas fa-coins"></i>
                 </div>
                 <h2>Insufficient Credits</h2>
-                <p>You need 20 credits to access Toolkit Maker</p>
+                <p>You need 25 credits to unlock and use Toolkit Maker</p>
             </div>
             <div class="credits-info">
                 <div class="credit-row">
@@ -400,22 +381,18 @@
                 </div>
                 <div class="credit-row">
                     <span>Required Credits:</span>
-                    <strong id="requiredCreditsDisplay">20</strong>
+                    <strong id="requiredCreditsDisplay">25</strong>
                 </div>
             </div>
             <div class="modal-actions">
                 <button class="buy-credits-btn" onclick="goToBuyCredits()">
-                    <i class="fas fa-shopping-cart"></i>
-                    Buy Credits
+                    <i class="fas fa-shopping-cart"></i> Buy Credits
                 </button>
-                <button class="close-modal-btn" onclick="closeInsufficientModal()">
-                    Close
-                </button>
+                <button class="close-modal-btn" onclick="closeInsufficientModal()">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Preview Modal -->
@@ -433,11 +410,10 @@
     <script src="js/toolkit-maker.js"></script>
     
     <script>
-        // Clean single auth listener
         auth.onAuthStateChanged(function(user) {
             if (user) {
                 currentUser = user;
-                checkToolkitMakerAccess(user);
+                initToolkitPage(user);
             } else {
                 currentUser = null;
                 currentUserData = null;
@@ -447,4 +423,4 @@
         });
     </script>
 </body>
-</html>
+                                                                                </html>
