@@ -428,19 +428,19 @@
     </div>
 
     <script src="js/script.js"></script>
-    <script src="js/toolkit-maker.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/credits.js"></script>
+    <script src="js/toolkit-maker.js"></script>
     
     <script>
-        // Initialize Firebase Auth State Detection
+        // Clean single auth listener
         auth.onAuthStateChanged(function(user) {
             if (user) {
-                // User is logged in
-                loadUserData(user);
-                checkToolkitMakerAccess();
+                currentUser = user;
+                checkToolkitMakerAccess(user);
             } else {
-                // User is logged out
+                currentUser = null;
+                currentUserData = null;
                 showGuestState();
                 showProtectedAccess();
             }
