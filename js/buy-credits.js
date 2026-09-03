@@ -2,13 +2,10 @@
 // BUY CREDITS - PAYMENT SYSTEM
 // =========================
 
-let selectedPackage = {
+var selectedPackage = {
     credits: 0,
     price: 0
 };
-
-let currentUser = null;
-let currentUserData = null;
 
 // Payment details
 const paymentDetails = {
@@ -56,13 +53,17 @@ function loadUserData(user) {
 }
 
 function showPricingContent() {
-    document.getElementById('loginRequired').style.display = 'none';
-    document.getElementById('pricingContent').style.display = 'block';
+    const loginReq = document.getElementById('loginRequired');
+    const pricing = document.getElementById('pricingContent');
+    if (loginReq) loginReq.style.display = 'none';
+    if (pricing) pricing.style.display = 'block';
 }
 
 function showLoginRequired() {
-    document.getElementById('loginRequired').style.display = 'flex';
-    document.getElementById('pricingContent').style.display = 'none';
+    const loginReq = document.getElementById('loginRequired');
+    const pricing = document.getElementById('pricingContent');
+    if (loginReq) loginReq.style.display = 'flex';
+    if (pricing) pricing.style.display = 'none';
 }
 
 // Select package
@@ -75,8 +76,10 @@ function selectPackage(credits, price) {
     selectedPackage.credits = credits;
     selectedPackage.price = price;
     
-    document.getElementById('selectedPackageText').textContent = 
-        `${credits} Credits - Rs. ${price}`;
+    const textEl = document.getElementById('selectedPackageText');
+    if (textEl) {
+        textEl.textContent = `${credits} Credits - Rs. ${price}`;
+    }
     
     openPaymentModal();
 }
@@ -84,26 +87,28 @@ function selectPackage(credits, price) {
 // Open payment modal
 function openPaymentModal() {
     const modal = document.getElementById('paymentModal');
-    modal.style.display = 'flex';
+    if (modal) modal.style.display = 'flex';
     updatePaymentInstructions('easypaisa');
 }
 
 // Close payment modal
 function closePaymentModal() {
     const modal = document.getElementById('paymentModal');
-    modal.style.display = 'none';
+    if (modal) modal.style.display = 'none';
 }
 
 // Update payment instructions based on method
 document.addEventListener('change', function(e) {
-    if (e.target.name === 'paymentMethod') {
+    if (e.target && e.target.name === 'paymentMethod') {
         updatePaymentInstructions(e.target.value);
     }
 });
 
 function updatePaymentInstructions(method) {
     const instructionsDiv = document.getElementById('paymentInstructions');
-    const details = paymentDetails[method];
+    if (!instructionsDiv) return;
+    
+    const details = paymentDetails[method] || paymentDetails.easypaisa;
     
     if (method === 'easypaisa' || method === 'jazzcash') {
         instructionsDiv.innerHTML = `
@@ -135,7 +140,8 @@ function submitPaymentRequest() {
     const payerName = document.getElementById('payerName').value.trim();
     const payerPhone = document.getElementById('payerPhone').value.trim();
     const transactionId = document.getElementById('transactionId').value.trim();
-    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const selectedMethodRadio = document.querySelector('input[name="paymentMethod"]:checked');
+    const paymentMethod = selectedMethodRadio ? selectedMethodRadio.value : 'easypaisa';
     const submitBtn = document.getElementById('submitPaymentBtn');
     
     if (!payerName || !payerPhone || !transactionId) {
@@ -148,8 +154,10 @@ function submitPaymentRequest() {
         return;
     }
     
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    }
     
     const requestData = {
         userId: currentUser.uid,
@@ -166,24 +174,26 @@ function submitPaymentRequest() {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    db.collection('purchaseRequests').add(requestData).then((docRef) => {
+    db.collection('purchaseRequests').add(requestData).then(() => {
         showToast('Payment request submitted successfully!', 'success');
         closePaymentModal();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payment Request';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payment Request';
+        }
         
-        // Clear form
         document.getElementById('payerName').value = '';
         document.getElementById('payerPhone').value = '';
         document.getElementById('transactionId').value = '';
         
-        // Show pending status
         setTimeout(() => {
             showToast('Your request is pending. Credits will be added after approval.', 'info');
         }, 1500);
     }).catch((error) => {
         showToast('Error submitting request: ' + error.message, 'error');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payment Request';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payment Request';
+        }
     });
 }
