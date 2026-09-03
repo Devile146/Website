@@ -1,6 +1,6 @@
-// =========================
-// BUY CREDITS - PAYMENT SYSTEM
-// =========================
+// =========================================================
+// BUY CREDITS - DYNAMIC PRICING PACKAGES & PAYMENT SYSTEM
+// =========================================================
 
 var selectedPackage = {
     credits: 0,
@@ -45,6 +45,7 @@ function loadUserData(user) {
     db.collection('users').doc(user.uid).get().then((doc) => {
         if (doc.exists) {
             currentUserData = doc.data();
+            currentUserData.credits = typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
             updateUserUI(user, currentUserData);
         }
     }).catch((error) => {
@@ -57,6 +58,9 @@ function showPricingContent() {
     const pricing = document.getElementById('pricingContent');
     if (loginReq) loginReq.style.display = 'none';
     if (pricing) pricing.style.display = 'block';
+    
+    // Load dynamic packages from Firestore
+    loadPricingPackages();
 }
 
 function showLoginRequired() {
@@ -64,6 +68,65 @@ function showLoginRequired() {
     const pricing = document.getElementById('pricingContent');
     if (loginReq) loginReq.style.display = 'flex';
     if (pricing) pricing.style.display = 'none';
+}
+
+// =========================================================
+// LOAD PRICING PACKAGES DIRECTLY FROM FIRESTORE (ADMIN SYNC)
+// =========================================================
+function loadPricingPackages() {
+    const pricingGrid = document.getElementById('pricingGrid');
+    if (!pricingGrid) return;
+
+    db.collection('pricingPackages').get().then((snapshot) => {
+        let packages = [];
+        snapshot.forEach((doc) => {
+            packages.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (packages.length === 0) {
+            // Default packages if database is empty
+            packages = [
+                { credits: 50, price: 120, label: 'Starter' },
+                { credits: 100, price: 210, label: 'Most Popular' },
+                { credits: 250, price: 400, label: 'Premium' }
+            ];
+        } else {
+            // Sort by price ascending
+            packages.sort((a, b) => (a.price || 0) - (b.price || 0));
+        }
+
+        renderPricingCards(packages);
+    }).catch((err) => {
+        console.error("Error loading pricing packages:", err);
+    });
+}
+
+function renderPricingCards(packages) {
+    const pricingGrid = document.getElementById('pricingGrid');
+    if (!pricingGrid) return;
+
+    pricingGrid.innerHTML = packages.map((pkg, index) => {
+        const isPopular = (pkg.label || '').toLowerCase().includes('popular') || index === 1;
+        const savingsText = pkg.credits >= 100 ? `Save Rs. ${Math.max(0, Math.round(pkg.credits * 2.4 - pkg.price))}` : '';
+        
+        return `
+            <div class="pricing-card ${isPopular ? 'popular' : ''}">
+                <div class="pricing-badge ${isPopular ? 'popular-badge' : ''}">${escapeHtml(pkg.label || 'Package')}</div>
+                <div class="pricing-icon"><i class="${pkg.credits >= 200 ? 'fas fa-crown' : 'fas fa-coins'}"></i></div>
+                <h3>${pkg.credits} Credits</h3>
+                <div class="pricing-amount">Rs. ${pkg.price}</div>
+                ${savingsText && savingsText !== 'Save Rs. 0' ? `<div class="pricing-save">${savingsText}</div>` : ''}
+                <div class="pricing-details">
+                    <span><i class="fas fa-check"></i> ${pkg.credits} Tool Access</span>
+                    <span><i class="fas fa-check"></i> Valid Forever</span>
+                    ${isPopular ? `<span><i class="fas fa-check"></i> Best Value</span>` : ''}
+                </div>
+                <button class="select-package-btn" onclick="selectPackage(${pkg.credits}, ${pkg.price})">
+                    <i class="fas fa-shopping-cart"></i> Select Package
+                </button>
+            </div>
+        `;
+    }).join('');
 }
 
 // Select package
@@ -161,8 +224,8 @@ function submitPaymentRequest() {
     
     const requestData = {
         userId: currentUser.uid,
-        userEmail: currentUser.email,
-        userName: currentUser.displayName || payerName,
+        userEmail: currentUser.email || '',
+        userName: (currentUserData && currentUserData.displayName) || payerName,
         packageCredits: selectedPackage.credits,
         packagePrice: selectedPackage.price,
         paymentMethod: paymentMethod,
@@ -187,7 +250,7 @@ function submitPaymentRequest() {
         document.getElementById('transactionId').value = '';
         
         setTimeout(() => {
-            showToast('Your request is pending. Credits will be added after approval.', 'info');
+            showToast('Your request is pending. Credits will be added after admin approval.', 'info');
         }, 1500);
     }).catch((error) => {
         showToast('Error submitting request: ' + error.message, 'error');
@@ -196,4 +259,4 @@ function submitPaymentRequest() {
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Payment Request';
         }
     });
-}
+            }
