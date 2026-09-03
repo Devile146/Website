@@ -1,8 +1,7 @@
 // =========================
-// TOOLKIT MAKER - MAIN SCRIPT
+// TOOLKIT MAKER - COMPLETE SCRIPT
 // =========================
 
-// Themes Configuration
 const themes = [
     {
         id: 'hacker',
@@ -147,6 +146,7 @@ let selectedTheme = 'glass';
 let profileImageData = null;
 let editingProductIndex = -1;
 let isGenerating = false;
+let isToolkitUnlocked = false;
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -162,33 +162,31 @@ function initProductForm() {
     renderProducts();
 }
 
-// =========================
-// AUTHENTICATION & ACCESS CHECK
-// =========================
-
-function checkToolkitMakerAccess(user) {
+// Check and show the 25 Credits Unlock screen
+function initToolkitPage(user) {
     const loadingOverlay = document.getElementById('toolkitLoadingOverlay');
     const mainContent = document.getElementById('toolkitMainContent');
+    const unlockPrompt = document.getElementById('toolkitUnlockPrompt');
     const protectedAccess = document.getElementById('protectedAccess');
     
-    const activeUser = user || currentUser || auth.currentUser;
-    
-    if (!activeUser) {
+    if (!user) {
         if (loadingOverlay) loadingOverlay.style.display = 'none';
         if (mainContent) mainContent.style.display = 'none';
+        if (unlockPrompt) unlockPrompt.style.display = 'none';
         if (protectedAccess) protectedAccess.style.display = 'flex';
         return;
     }
     
-    // Fetch user details from Firestore
-    db.collection('users').doc(activeUser.uid).get().then((doc) => {
+    // Fetch latest user data from Firestore
+    db.collection('users').doc(user.uid).get().then((doc) => {
         if (loadingOverlay) loadingOverlay.style.display = 'none';
         
-        let userData = doc.exists ? doc.data() : { credits: 0, accountStatus: 'active' };
-        currentUserData = userData;
+        currentUserData = doc.exists ? doc.data() : { credits: 0, accountStatus: 'active' };
+        updateUserUI(user, currentUserData);
         
-        if (userData.accountStatus === 'disabled') {
+        if (currentUserData.accountStatus === 'disabled') {
             if (mainContent) mainContent.style.display = 'none';
+            if (unlockPrompt) unlockPrompt.style.display = 'none';
             if (protectedAccess) {
                 protectedAccess.innerHTML = `
                     <div class="protected-box">
@@ -202,35 +200,94 @@ function checkToolkitMakerAccess(user) {
             return;
         }
         
-        // Show the builder UI immediately
-        if (protectedAccess) protectedAccess.style.display = 'none';
+        if (isToolkitUnlocked) {
+            // Already unlocked during this session
+            if (unlockPrompt) unlockPrompt.style.display = 'none';
+            if (protectedAccess) protectedAccess.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'block';
+        } else {
+            // Show 25 credits unlock prompt
+            if (protectedAccess) protectedAccess.style.display = 'none';
+            if (mainContent) mainContent.style.display = 'none';
+            if (unlockPrompt) {
+                unlockPrompt.style.display = 'flex';
+                const currentCredsEl = document.getElementById('unlockCurrentCredits');
+                if (currentCredsEl) {
+                    currentCredsEl.textContent = currentUserData.credits || 0;
+                }
+            }
+        }
+    }).catch((err) => {
+        console.error("Error loading user state:", err);
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (unlockPrompt) unlockPrompt.style.display = 'flex';
+    });
+}
+
+// User clicks "Unlock Now (25 Credits)"
+function payAndOpenToolkit() {
+    if (!currentUser) {
+        openAuthModal('login');
+        return;
+    }
+    
+    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
+    
+    if (credits < 25) {
+        showInsufficientCredits(25);
+        return;
+    }
+    
+    const unlockBtn = document.getElementById('unlockToolkitBtn');
+    if (unlockBtn) {
+        unlockBtn.disabled = true;
+        unlockBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deducting 25 Credits...';
+    }
+    
+    deductCredits(25, 'toolkit_maker_unlock', 'Toolkit Maker feature access').then((newCredits) => {
+        isToolkitUnlocked = true;
+        showToast('25 credits deducted! Toolkit Maker unlocked.', 'success');
+        
+        const unlockPrompt = document.getElementById('toolkitUnlockPrompt');
+        const mainContent = document.getElementById('toolkitMainContent');
+        
+        if (unlockPrompt) unlockPrompt.style.display = 'none';
         if (mainContent) mainContent.style.display = 'block';
         
         renderThemes();
         renderProducts();
-        updateUserUI(activeUser, userData);
-    }).catch((err) => {
-        console.error("Error accessing toolkit maker:", err);
-        if (loadingOverlay) loadingOverlay.style.display = 'none';
-        if (protectedAccess) protectedAccess.style.display = 'none';
-        if (mainContent) mainContent.style.display = 'block';
-        renderThemes();
-        renderProducts();
+        
+        if (unlockBtn) {
+            unlockBtn.disabled = false;
+            unlockBtn.innerHTML = '<i class="fas fa-unlock"></i> Unlock Now (25 Credits)';
+        }
+    }).catch((error) => {
+        if (unlockBtn) {
+            unlockBtn.disabled = false;
+            unlockBtn.innerHTML = '<i class="fas fa-unlock"></i> Unlock Now (25 Credits)';
+        }
+        if (error.message === 'Insufficient credits') {
+            showInsufficientCredits(25);
+        } else {
+            showToast(error.message, 'error');
+        }
     });
 }
 
 function showProtectedAccess() {
     const loadingOverlay = document.getElementById('toolkitLoadingOverlay');
     const mainContent = document.getElementById('toolkitMainContent');
+    const unlockPrompt = document.getElementById('toolkitUnlockPrompt');
     const protectedAccess = document.getElementById('protectedAccess');
     
     if (loadingOverlay) loadingOverlay.style.display = 'none';
     if (mainContent) mainContent.style.display = 'none';
+    if (unlockPrompt) unlockPrompt.style.display = 'none';
     if (protectedAccess) protectedAccess.style.display = 'flex';
 }
 
 // =========================
-// RENDER THEMES
+// THEMES & PRODUCTS
 // =========================
 
 function renderThemes() {
@@ -252,10 +309,6 @@ function selectTheme(themeId) {
     renderThemes();
     showToast('Theme selected: ' + themeId, 'info');
 }
-
-// =========================
-// IMAGE HANDLING
-// =========================
 
 function handleImageUpload(event) {
     const file = event.target.files[0];
@@ -285,10 +338,6 @@ function showProfilePreview(src) {
         preview.style.display = 'block';
     }
 }
-
-// =========================
-// PRODUCT MANAGEMENT
-// =========================
 
 function showProductForm() {
     const form = document.getElementById('productForm');
@@ -392,14 +441,13 @@ function deleteProduct(index) {
 }
 
 // =========================
-// GENERATE TOOLKIT
+// CODE GENERATOR
 // =========================
 
 function generateToolkit() {
     if (isGenerating) return;
     
     const toolkitName = document.getElementById('toolkitName').value.trim();
-    
     if (!toolkitName) {
         showToast('Please enter toolkit name', 'error');
         return;
@@ -457,7 +505,6 @@ function generateToolkit() {
     }, 400);
 }
 
-// Build Clean Toolkit Code
 function buildToolkitCode() {
     const toolkitName = document.getElementById('toolkitName').value.trim() || 'My Premium Toolkit';
     const toolkitAbout = document.getElementById('toolkitAbout').value.trim();
@@ -470,7 +517,6 @@ function buildToolkitCode() {
     const theme = themes.find(t => t.id === selectedTheme) || themes[3];
     const profileImg = profileImageData || 'https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg';
     
-    // Products HTML
     const productsHTML = products.map((product) => {
         const isFree = product.type === 'free';
         const cleanWhatsapp = whatsapp.replace(/[^0-9]/g, '');
@@ -496,7 +542,6 @@ function buildToolkitCode() {
         </div>`;
     }).join('\n');
     
-    // Contact Section
     const contactButtons = [];
     if (whatsapp) {
         const cleanNumber = whatsapp.replace(/[^0-9]/g, '');
@@ -516,7 +561,6 @@ function buildToolkitCode() {
         <div style="display:flex;gap:15px;justify-content:center;flex-wrap:wrap;">${contactButtons.join('')}</div>
     </div>` : '';
     
-    // Popup HTML
     const popupHTML = popupEnabled && contactButtons.length > 0 ? `
     <div id="welcomePopup" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px;">
         <div style="background:${theme.bg};border:1px solid ${theme.accent};border-radius:20px;padding:35px;text-align:center;max-width:400px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
@@ -665,7 +709,6 @@ function downloadCode() {
     showToast('Toolkit downloaded successfully!', 'success');
 }
 
-// Helpers
 function escapeHtml(text) {
     if (!text) return '';
     return text.replace(/[&<>"']/g, function(m) {
@@ -676,4 +719,4 @@ function escapeHtml(text) {
 function escapeJsString(str) {
     if (!str) return '';
     return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
-            }
+    }
