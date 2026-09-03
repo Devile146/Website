@@ -8,7 +8,7 @@ const CONFIG = {
     TELEGRAM_LINK: "https://t.me/fahad_tricks_bot",
     EMAIL_LINK: "mailto:fahadali2727@gmail.com",
     PREMIUM_WHATSAPP: "https://wa.me/923251138959",
-    PROFILE_IMAGE: "https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg"
+    PROFILE_IMAGE: "https://raw.githubusercontent.com/Devile146/Website/main/Dppic.jpg"
 };
 
 // Current state
