@@ -284,71 +284,101 @@
 
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- Load scripts -->
     <script src="js/script.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/credits.js"></script>
+    
     <script>
-        let currentUser = null;
-        let currentUserData = null;
-        
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
+        // Account page initialization - FIXED
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check auth state
+            if (auth.currentUser) {
+                // User is logged in
+                const user = auth.currentUser;
                 currentUser = user;
-                loadAccountData(user);
-                loadUserData(user);
+                // Load user data
+                if (typeof ensureUserDocumentExists === 'function') {
+                    ensureUserDocumentExists(user);
+                } else {
+                    // Fallback: load from Firestore directly
+                    db.collection('users').doc(user.uid).get().then((doc) => {
+                        const loadingEl = document.getElementById('accountLoading');
+                        const contentEl = document.getElementById('accountContent');
+                        const loginRequiredEl = document.getElementById('loginRequired');
+                        
+                        if (doc.exists) {
+                            const data = doc.data();
+                            currentUserData = data;
+                            loadingEl.style.display = 'none';
+                            contentEl.style.display = 'block';
+                            loginRequiredEl.style.display = 'none';
+                            
+                            document.getElementById('accountName').textContent = data.displayName || 'User';
+                            document.getElementById('accountEmail').textContent = data.email || '';
+                            document.getElementById('accountCredits').textContent = data.credits || 0;
+                            
+                            if (data.createdAt && data.createdAt.toDate) {
+                                const date = data.createdAt.toDate();
+                                document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                });
+                            }
+                        } else {
+                            // Create document if it doesn't exist
+                            const userData = {
+                                uid: user.uid,
+                                displayName: user.displayName || 'User',
+                                email: user.email,
+                                credits: 25,
+                                accountStatus: 'active',
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+                            db.collection('users').doc(user.uid).set(userData).then(() => {
+                                currentUserData = userData;
+                                loadingEl.style.display = 'none';
+                                contentEl.style.display = 'block';
+                                loginRequiredEl.style.display = 'none';
+                                document.getElementById('accountName').textContent = userData.displayName;
+                                document.getElementById('accountEmail').textContent = userData.email;
+                                document.getElementById('accountCredits').textContent = userData.credits;
+                                document.getElementById('memberSince').textContent = 'Today';
+                            });
+                        }
+                    }).catch((error) => {
+                        console.error('Error loading account:', error);
+                        const loadingEl = document.getElementById('accountLoading');
+                        loadingEl.innerHTML = '<p style="color: #FF4D91;">Error loading account. Please refresh.</p>';
+                    });
+                }
             } else {
-                currentUser = null;
-                currentUserData = null;
-                showLoginRequired();
-                showGuestState();
+                // User not logged in
+                const loadingEl = document.getElementById('accountLoading');
+                const contentEl = document.getElementById('accountContent');
+                const loginRequiredEl = document.getElementById('loginRequired');
+                
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'none';
+                loginRequiredEl.style.display = 'flex';
             }
         });
         
-        function loadAccountData(user) {
-            db.collection('users').doc(user.uid).get().then((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    currentUserData = data;
-                    displayAccountData(data);
+        // Also listen for auth state changes
+        auth.onAuthStateChanged(function(user) {
+            if (user) {
+                currentUser = user;
+                // If on account page and still loading, try again
+                const loadingEl = document.getElementById('accountLoading');
+                if (loadingEl && loadingEl.style.display !== 'none') {
+                    if (typeof ensureUserDocumentExists === 'function') {
+                        ensureUserDocumentExists(user);
+                    }
                 }
-            }).catch((error) => {
-                showToast('Error loading account data', 'error');
-            });
-        }
-        
-        function displayAccountData(data) {
-            document.getElementById('accountLoading').style.display = 'none';
-            document.getElementById('accountContent').style.display = 'block';
-            document.getElementById('loginRequired').style.display = 'none';
-            
-            document.getElementById('accountName').textContent = data.displayName || 'User';
-            document.getElementById('accountEmail').textContent = data.email || '';
-            document.getElementById('accountCredits').textContent = data.credits || 0;
-            
-            // Account status
-            const statusElement = document.getElementById('accountStatus');
-            if (data.accountStatus === 'disabled') {
-                statusElement.innerHTML = '<span class="status-dot disabled"></span><span>Disabled</span>';
-            } else {
-                statusElement.innerHTML = '<span class="status-dot active"></span><span>Active</span>';
             }
-            
-            // Member since
-            if (data.createdAt) {
-                const date = data.createdAt.toDate();
-                document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            }
-        }
-        
-        function showLoginRequired() {
-            document.getElementById('accountLoading').style.display = 'none';
-            document.getElementById('accountContent').style.display = 'none';
-            document.getElementById('loginRequired').style.display = 'flex';
-        }
+        });
     </script>
 </body>
-</html>
+    </html>
