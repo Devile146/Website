@@ -1,6 +1,9 @@
 // =========================
-// FAHAD TECH - CREDIT SYSTEM (FIXED)
+// FAHAD TECH - CREDIT SYSTEM
 // =========================
+
+const TOOLKIT_COST = 25;
+const TOOL_COST = 5;
 
 // Check if user has enough credits
 function checkCredits(requiredCredits) {
@@ -20,7 +23,7 @@ function checkCredits(requiredCredits) {
             return;
         }
         
-        if (currentUserData.credits < requiredCredits) {
+        if ((currentUserData.credits || 0) < requiredCredits) {
             reject(new Error('Insufficient credits'));
             return;
         }
@@ -66,58 +69,12 @@ function deductCredits(amount, action, details) {
                 return newCredits;
             });
         }).then((newCredits) => {
-            // Update local data
             if (currentUserData) {
                 currentUserData.credits = newCredits;
             }
             
-            // Update UI
             updateCreditsDisplay(newCredits);
-            
-            // Log transaction
             logTransaction(action, details, -amount);
-            
-            resolve(newCredits);
-        }).catch((error) => {
-            reject(error);
-        });
-    });
-}
-
-// Add credits (for admin use)
-function addCredits(amount, action, details) {
-    return new Promise((resolve, reject) => {
-        if (!currentUser) {
-            reject(new Error('Please login first'));
-            return;
-        }
-        
-        const userRef = db.collection('users').doc(currentUser.uid);
-        
-        db.runTransaction((transaction) => {
-            return transaction.get(userRef).then((doc) => {
-                if (!doc.exists) {
-                    throw new Error('User data not found');
-                }
-                
-                const userData = doc.data();
-                const currentCredits = userData.credits || 0;
-                const newCredits = currentCredits + amount;
-                
-                transaction.update(userRef, {
-                    credits: newCredits,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                return newCredits;
-            });
-        }).then((newCredits) => {
-            if (currentUserData) {
-                currentUserData.credits = newCredits;
-            }
-            
-            updateCreditsDisplay(newCredits);
-            logTransaction(action, details, amount);
             
             resolve(newCredits);
         }).catch((error) => {
@@ -128,9 +85,10 @@ function addCredits(amount, action, details) {
 
 // Log transaction
 function logTransaction(action, details, amount) {
+    if (!currentUser) return;
     const transactionData = {
         userId: currentUser.uid,
-        userEmail: currentUser.email,
+        userEmail: currentUser.email || '',
         action: action,
         details: details || '',
         amount: amount,
@@ -153,21 +111,33 @@ function updateCreditsDisplay(credits) {
     if (accountCredits) {
         accountCredits.textContent = credits;
     }
+    
+    const currentCreditsDisplay = document.getElementById('currentCreditsDisplay');
+    if (currentCreditsDisplay) {
+        currentCreditsDisplay.textContent = credits;
+    }
+    
+    const unlockCurrentCredits = document.getElementById('unlockCurrentCredits');
+    if (unlockCurrentCredits) {
+        unlockCurrentCredits.textContent = credits;
+    }
 }
 
 // Show insufficient credits modal
-function showInsufficientCredits(required) {
+function showInsufficientCredits(required = 25) {
     const modal = document.getElementById('insufficientModal');
     const currentCreditsDisplay = document.getElementById('currentCreditsDisplay');
     const requiredCreditsDisplay = document.getElementById('requiredCreditsDisplay');
     
+    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
+    
+    if (currentCreditsDisplay) {
+        currentCreditsDisplay.textContent = credits;
+    }
+    if (requiredCreditsDisplay) {
+        requiredCreditsDisplay.textContent = required;
+    }
     if (modal) {
-        if (currentCreditsDisplay) {
-            currentCreditsDisplay.textContent = currentUserData ? currentUserData.credits : 0;
-        }
-        if (requiredCreditsDisplay) {
-            requiredCreditsDisplay.textContent = required;
-        }
         modal.style.display = 'flex';
     }
 }
@@ -186,7 +156,7 @@ function goToBuyCredits() {
     window.location.href = 'buy-credits.html';
 }
 
-// Check tool access (5 credits per tool)
+// Check tool access (5 Credits)
 function checkToolAccess(toolName, toolLink) {
     if (!currentUser) {
         openAuthModal('login');
@@ -198,42 +168,15 @@ function checkToolAccess(toolName, toolLink) {
         return;
     }
     
-    if (!currentUserData || currentUserData.credits < 5) {
-        showInsufficientCredits(5);
+    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
+    if (credits < TOOL_COST) {
+        showInsufficientCredits(TOOL_COST);
         return;
     }
     
-    // Deduct 5 credits and open tool
-    deductCredits(5, 'tool_open', toolName).then(() => {
+    deductCredits(TOOL_COST, 'tool_open', toolName).then(() => {
         window.open(toolLink, '_blank');
     }).catch((error) => {
         showToast(error.message, 'error');
     });
-}
-
-// Check toolkit maker access - FIXED: 5 credits like tools, opens toolkit page
-function checkToolkitAccess() {
-    if (!currentUser) {
-        openAuthModal('login');
-        return;
-    }
-    
-    if (currentUserData && currentUserData.accountStatus === 'disabled') {
-        showToast('Your account is currently disabled. Please contact support.', 'error');
-        return;
-    }
-    
-    // Check if user has at least 5 credits (same as tools)
-    if (!currentUserData || currentUserData.credits < 5) {
-        showInsufficientCredits(5);
-        return;
-    }
-    
-    // Deduct 5 credits and go to toolkit maker page
-    deductCredits(5, 'toolkit_maker_access', 'Toolkit Maker access').then(() => {
-        // Navigate to toolkit maker page
-        window.location.href = 'toolkit-maker.html';
-    }).catch((error) => {
-        showToast(error.message, 'error');
-    });
-}
+                                                         }
