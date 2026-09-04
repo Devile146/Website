@@ -15,21 +15,34 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyDHJflwa4XJ9koDqfsQ2tOCDm93TTUhKqA",
-            authDomain: "fahad-tech-website.firebaseapp.com",
-            projectId: "fahad-tech-website",
-            storageBucket: "fahad-tech-website.firebasestorage.app",
-            messagingSenderId: "487340113323",
-            appId: "1:487340113323:web:6c0923e8c95b4064e5a6ee"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-    </script>
+    <script src="js/firebase-config.js"></script>
+
+    <style>
+        .theme-cost-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.75);
+            color: #ffd700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .theme-preview-box {
+            position: relative;
+            height: 90px;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body class="toolkit-page">
     <div class="page-background"></div>
@@ -104,7 +117,7 @@
             <a href="tools.html">Tools</a>
             <a href="categories.html">Categories</a>
             <a href="toolkit-maker.html" class="active">Toolkit Maker</a>
-            <a href="about.html">About</a>
+            <a href="about.html" class="about">About</a>
             <a href="contact.html">Contact</a>
             <div class="mobile-auth-area" id="mobileAuthArea"></div>
         </div>
@@ -127,43 +140,11 @@
         </div>
     </aside>
 
-    <!-- Unlock / Paywall Screen (Spend 25 Credits) -->
-    <div class="protected-access" id="toolkitUnlockPrompt" style="display: none;">
-        <div class="protected-box" style="max-width: 480px;">
-            <div class="protected-icon" style="background: rgba(255, 215, 0, 0.15); color: #ffd700; font-size: 36px;">
-                <i class="fas fa-magic"></i>
-            </div>
-            <h2>Unlock <span class="gradient-text">Toolkit Maker</span></h2>
-            <p style="margin: 12px 0 20px; font-size: 14px; line-height: 1.6; color: #B8B8C8;">
-                Spend <strong>25 Credits</strong> to unlock the Premium Toolkit Maker and generate your custom tools website.
-            </p>
-            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.1);">
-                <div>
-                    <span style="font-size: 12px; opacity: 0.8; display: block;">Your Balance:</span>
-                    <strong style="color: #4ade80; font-size: 18px;"><i class="fas fa-coins"></i> <span id="unlockCurrentCredits">0</span></strong>
-                </div>
-                <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
-                <div>
-                    <span style="font-size: 12px; opacity: 0.8; display: block;">Cost:</span>
-                    <strong style="color: #ffd700; font-size: 18px;"><i class="fas fa-coins"></i> 25 Credits</strong>
-                </div>
-            </div>
-            <div class="protected-actions" style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="btn-primary" id="unlockToolkitBtn" onclick="payAndOpenToolkit()" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px;">
-                    <i class="fas fa-unlock"></i> Unlock Now (25 Credits)
-                </button>
-                <button class="btn-secondary" onclick="window.location.href='buy-credits.html'" style="width: 100%; justify-content: center; padding: 12px;">
-                    <i class="fas fa-shopping-cart"></i> Buy More Credits
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content (Shown after Unlocking with 25 Credits) -->
+    <!-- Main Content (2x2 Grid Toolkit Builder) -->
     <main class="main-content toolkit-main" id="toolkitMainContent" style="display: none;">
         <div class="toolkit-header">
             <h1 class="page-title"><i class="fas fa-magic"></i> <span class="gradient-text">Toolkit Maker</span></h1>
-            <p class="page-description">Create your own premium toolkit website in minutes</p>
+            <p class="page-description">Build responsive 2x2 grid websites with custom styles (5 Credits per style generation)</p>
         </div>
 
         <div class="toolkit-builder">
@@ -177,7 +158,7 @@
                     </div>
                     <div class="form-group">
                         <label>About Toolkit</label>
-                        <textarea id="toolkitAbout" rows="3" placeholder="Describe your toolkit..."></textarea>
+                        <textarea id="toolkitAbout" rows="2" placeholder="Describe your toolkit..."></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
@@ -195,9 +176,9 @@
                 </div>
             </div>
 
-            <!-- Section 2: Products/Tools -->
+            <!-- Section 2: Products/Tools (2x2 Grid) -->
             <div class="builder-section">
-                <h2 class="builder-section-title"><i class="fas fa-box"></i> Add Products/Tools</h2>
+                <h2 class="builder-section-title"><i class="fas fa-box"></i> Add Products/Tools (2x2 Grid)</h2>
                 <div class="products-list" id="productsList"></div>
                 <button class="add-product-btn" onclick="showProductForm()">
                     <i class="fas fa-plus"></i> Add Product
@@ -205,15 +186,31 @@
                 <div class="product-form" id="productForm" style="display:none;">
                     <div class="form-group">
                         <label>Product Name *</label>
-                        <input type="text" id="productName" placeholder="e.g., AI Tool Pro">
+                        <input type="text" id="productName" placeholder="e.g., AI Video Pro">
                     </div>
                     <div class="form-group">
                         <label>Product Link *</label>
                         <input type="url" id="productLink" placeholder="https://...">
                     </div>
                     <div class="form-group">
-                        <label>About Product</label>
-                        <textarea id="productAbout" rows="2" placeholder="Short description..."></textarea>
+                        <label>Category (For Category Filter)</label>
+                        <select id="productCategory">
+                            <option value="General Tools">General Tools</option>
+                            <option value="AI Tools">AI Tools</option>
+                            <option value="Photo AI">Photo AI</option>
+                            <option value="Video Makers">Video Makers</option>
+                            <option value="Hacking">Hacking</option>
+                            <option value="OSINT">OSINT</option>
+                            <option value="Telegram Bots">Telegram Bots</option>
+                            <option value="Social Media">Social Media</option>
+                            <option value="Mod Apps">Mod Apps</option>
+                            <option value="Courses">Courses</option>
+                            <option value="Gaming">Gaming</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description (Optional)</label>
+                        <textarea id="productAbout" rows="2" placeholder="Brief details..."></textarea>
                     </div>
                     <div class="form-group">
                         <label>Product Type</label>
@@ -229,7 +226,7 @@
                 </div>
             </div>
 
-            <!-- Section 3: Get In Touch -->
+            <!-- Section 3: Contact Details -->
             <div class="builder-section">
                 <h2 class="builder-section-title"><i class="fas fa-address-book"></i> Get In Touch (Optional)</h2>
                 <div class="builder-form">
@@ -255,16 +252,19 @@
                 </div>
             </div>
 
-            <!-- Section 4: Theme Selector -->
+            <!-- Section 4: Premium Theme Selector (5 Credits per style) -->
             <div class="builder-section">
-                <h2 class="builder-section-title"><i class="fas fa-palette"></i> Select Theme</h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h2 class="builder-section-title" style="margin-bottom:0;"><i class="fas fa-palette"></i> Select Premium Theme Style</h2>
+                    <span style="font-size:12px; color:#ffd700; font-weight:700;"><i class="fas fa-coins"></i> 5 Credits / Theme Build</span>
+                </div>
                 <div class="themes-grid" id="themesGrid"></div>
             </div>
 
             <!-- Section 5: Generate -->
             <div class="builder-section generate-section">
                 <button class="generate-btn" onclick="generateToolkit()">
-                    <i class="fas fa-rocket"></i> CREATE MY TOOLKIT
+                    <i class="fas fa-rocket"></i> CREATE 2x2 TOOLKIT (5 CREDITS)
                 </button>
                 <div class="generation-progress" id="generationProgress" style="display:none;">
                     <div class="progress-steps" id="progressSteps"></div>
@@ -276,7 +276,7 @@
         <div class="generated-output" id="generatedOutput" style="display:none;">
             <div class="code-header">
                 <div class="code-title">
-                    <i class="fas fa-code"></i> Your Website Code
+                    <i class="fas fa-code"></i> Your 2x2 Grid Website Code
                 </div>
                 <div class="code-actions">
                     <button class="code-btn run-btn" onclick="runToolkit()"><i class="fas fa-play"></i> Run</button>
@@ -288,7 +288,7 @@
         </div>
     </main>
 
-    <!-- Login Required Fallback -->
+    <!-- Fallback Login Required -->
     <div class="protected-access" id="protectedAccess" style="display: none;">
         <div class="protected-box">
             <div class="protected-icon"><i class="fas fa-lock"></i></div>
@@ -363,16 +363,14 @@
         </div>
     </div>
 
-    <!-- Insufficient Credits Modal (25 Credits) -->
+    <!-- Insufficient Credits Modal -->
     <div class="modal-overlay" id="insufficientModal" style="display: none;">
         <div class="modal-box insufficient-modal">
             <button class="modal-close" onclick="closeInsufficientModal()">&times;</button>
             <div class="modal-header">
-                <div class="insufficient-icon">
-                    <i class="fas fa-coins"></i>
-                </div>
+                <div class="insufficient-icon"><i class="fas fa-coins"></i></div>
                 <h2>Insufficient Credits</h2>
-                <p>You need 25 credits to unlock and use Toolkit Maker</p>
+                <p>You need at least 5 credits to generate with this premium style</p>
             </div>
             <div class="credits-info">
                 <div class="credit-row">
@@ -381,13 +379,11 @@
                 </div>
                 <div class="credit-row">
                     <span>Required Credits:</span>
-                    <strong id="requiredCreditsDisplay">25</strong>
+                    <strong id="requiredCreditsDisplay">5</strong>
                 </div>
             </div>
             <div class="modal-actions">
-                <button class="buy-credits-btn" onclick="goToBuyCredits()">
-                    <i class="fas fa-shopping-cart"></i> Buy Credits
-                </button>
+                <button class="buy-credits-btn" onclick="goToBuyCredits()"><i class="fas fa-shopping-cart"></i> Buy Credits</button>
                 <button class="close-modal-btn" onclick="closeInsufficientModal()">Close</button>
             </div>
         </div>
@@ -398,7 +394,7 @@
     <!-- Preview Modal -->
     <div class="preview-modal" id="previewModal" style="display:none;">
         <div class="preview-modal-header">
-            <span>Toolkit Preview</span>
+            <span>Toolkit 2x2 Preview</span>
             <button onclick="closePreview()"><i class="fas fa-times"></i></button>
         </div>
         <iframe id="previewFrame" class="preview-frame"></iframe>
@@ -423,4 +419,4 @@
         });
     </script>
 </body>
-                                                                                </html>
+    </html>
