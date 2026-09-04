@@ -130,7 +130,7 @@
                     </div>
                 </div>
 
-                <!-- Credits Card -->
+                <!-- Credits Balance Card -->
                 <div class="account-card credits-card">
                     <div class="account-card-header">
                         <i class="fas fa-coins"></i>
@@ -146,7 +146,7 @@
                     </button>
                 </div>
 
-                <!-- 10-Digit Numeric Referral Program Card -->
+                <!-- 10-Digit Referral Program Card -->
                 <div class="account-card member-card">
                     <div class="account-card-header">
                         <i class="fas fa-users"></i>
@@ -177,22 +177,22 @@
                 </div>
             </div>
 
-            <!-- Free Telegram Reward Card -->
+            <!-- Free WhatsApp Group Reward Card -->
             <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px; margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:42px; height:42px; border-radius:10px; background:rgba(59,130,246,0.15); color:#3B82F6; display:flex; align-items:center; justify-content:center; font-size:22px;">
-                        <i class="fab fa-telegram"></i>
+                    <div style="width:42px; height:42px; border-radius:10px; background:rgba(74, 222, 128, 0.15); color:#25D366; display:flex; align-items:center; justify-content:center; font-size:24px;">
+                        <i class="fab fa-whatsapp"></i>
                     </div>
                     <div>
-                        <h4 style="font-size:14px; font-weight:700; margin-bottom:2px;">Join Official Telegram Channel</h4>
+                        <h4 style="font-size:14px; font-weight:700; margin-bottom:2px;">Join Official WhatsApp Group</h4>
                         <span style="font-size:11px; color:#ffd700; font-weight:700;"><i class="fas fa-coins"></i> +10 Free Credits (1-Time Claim)</span>
                     </div>
                 </div>
-                <div id="tgClaimArea" style="display:flex; gap:8px;">
-                    <a href="https://t.me/fahad_tricks_bot" target="_blank" onclick="sessionStorage.setItem('tg_acc_opened','true')" style="background:#6D5CFF; color:#fff; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                        <i class="fas fa-external-link-alt"></i> Join Channel
+                <div id="waClaimArea" style="display:flex; gap:8px;">
+                    <a href="https://chat.whatsapp.com/BDdh6Q1YyjpLJaqjjMATyS?s=cl&p=a&mlu=4&ilr=4" target="_blank" onclick="sessionStorage.setItem('wa_acc_opened','true')" style="background:#25D366; color:#000; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fab fa-whatsapp"></i> Join WhatsApp Group
                     </a>
-                    <button id="claimTgAccBtn" onclick="claimAccountTelegramTask()" style="background:#10B981; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;">
+                    <button id="claimWaAccBtn" onclick="claimAccountWhatsAppTask()" style="background:#10B981; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;">
                         <i class="fas fa-check-circle"></i> Claim 10 Credits
                     </button>
                 </div>
@@ -351,11 +351,11 @@
                         claimBtn.innerHTML = `<i class="fas fa-lock"></i> Need 3 Referrals to Claim (${unclaimed}/3)`;
                     }
 
-                    // Check Telegram Task
+                    // Check WhatsApp Task
                     const tasks = data.completedTasks || {};
-                    if (tasks['task_telegram']) {
-                        const tgArea = document.getElementById('tgClaimArea');
-                        if (tgArea) tgArea.innerHTML = '<span style="color:#4ade80; font-size:12px; font-weight:700;"><i class="fas fa-check-circle"></i> +10 Credits Claimed</span>';
+                    if (tasks['task_whatsapp']) {
+                        const waArea = document.getElementById('waClaimArea');
+                        if (waArea) waArea.innerHTML = '<span style="color:#4ade80; font-size:12px; font-weight:700;"><i class="fas fa-check-circle"></i> +10 Credits Claimed</span>';
                     }
                 }
             });
@@ -417,15 +417,15 @@
             });
         }
 
-        // Claim Telegram Task (1-Time)
-        function claimAccountTelegramTask() {
+        // Claim WhatsApp Task (1-Time)
+        function claimAccountWhatsAppTask() {
             if (!currentUser) return;
-            if (!sessionStorage.getItem('tg_acc_opened')) {
-                showToast('Please click "Join Channel" first!', 'error');
+            if (!sessionStorage.getItem('wa_acc_opened')) {
+                showToast('Please click "Join WhatsApp Group" first!', 'error');
                 return;
             }
 
-            const btn = document.getElementById('claimTgAccBtn');
+            const btn = document.getElementById('claimWaAccBtn');
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
 
@@ -435,9 +435,9 @@
                     if (!doc.exists) throw new Error('User not found');
                     const d = doc.data();
                     const tasks = d.completedTasks || {};
-                    if (tasks['task_telegram']) throw new Error('Already claimed!');
+                    if (tasks['task_whatsapp']) throw new Error('Already claimed!');
                     
-                    tasks['task_telegram'] = true;
+                    tasks['task_whatsapp'] = true;
                     const newCredits = (d.credits || 0) + 10;
                     tx.update(userRef, {
                         credits: newCredits,
@@ -450,7 +450,7 @@
                 if (currentUserData) currentUserData.credits = newCredits;
                 updateCreditsDisplay(newCredits);
                 loadAccountData(currentUser);
-                logTransaction('task_reward', 'Joined Telegram Channel', 10);
+                logTransaction('task_reward', 'Joined Official WhatsApp Group', 10);
                 showToast('🎉 +10 Credits Added!', 'success');
             }).catch(err => {
                 showToast(err.message, 'error');
@@ -497,4 +497,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
