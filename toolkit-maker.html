@@ -16,33 +16,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
-
-    <style>
-        .theme-cost-badge {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            background: rgba(0, 0, 0, 0.75);
-            color: #ffd700;
-            padding: 2px 7px;
-            border-radius: 6px;
-            font-size: 10px;
-            font-weight: 800;
-            border: 1px solid rgba(255, 215, 0, 0.5);
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .theme-preview-box {
-            position: relative;
-            height: 90px;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
 </head>
 <body class="toolkit-page">
     <div class="page-background"></div>
@@ -117,7 +90,7 @@
             <a href="tools.html">Tools</a>
             <a href="categories.html">Categories</a>
             <a href="toolkit-maker.html" class="active">Toolkit Maker</a>
-            <a href="about.html" class="about">About</a>
+            <a href="about.html">About</a>
             <a href="contact.html">Contact</a>
             <div class="mobile-auth-area" id="mobileAuthArea"></div>
         </div>
@@ -140,11 +113,43 @@
         </div>
     </aside>
 
+    <!-- Unlock / Paywall Screen (Spend 25 Credits) -->
+    <div class="protected-access" id="toolkitUnlockPrompt" style="display: none;">
+        <div class="protected-box" style="max-width: 480px;">
+            <div class="protected-icon" style="background: rgba(255, 215, 0, 0.15); color: #ffd700; font-size: 36px;">
+                <i class="fas fa-magic"></i>
+            </div>
+            <h2>Unlock <span class="gradient-text">Toolkit Maker</span></h2>
+            <p style="margin: 12px 0 20px; font-size: 14px; line-height: 1.6; color: #B8B8C8;">
+                Spend <strong>25 Credits</strong> to unlock the Premium Toolkit Maker and generate your custom tools website with 2x2 Grid, Search Bar & Categories.
+            </p>
+            <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 25px; display: flex; justify-content: space-around; border: 1px solid rgba(255,255,255,0.1);">
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8; display: block;">Your Balance:</span>
+                    <strong style="color: #4ade80; font-size: 18px;"><i class="fas fa-coins"></i> <span id="unlockCurrentCredits">0</span></strong>
+                </div>
+                <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
+                <div>
+                    <span style="font-size: 12px; opacity: 0.8; display: block;">Cost:</span>
+                    <strong style="color: #ffd700; font-size: 18px;"><i class="fas fa-coins"></i> 25 Credits</strong>
+                </div>
+            </div>
+            <div class="protected-actions" style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn-primary" id="unlockToolkitBtn" onclick="payAndOpenToolkit()" style="width: 100%; justify-content: center; padding: 14px; font-size: 15px;">
+                    <i class="fas fa-unlock"></i> Unlock Now (25 Credits)
+                </button>
+                <button class="btn-secondary" onclick="window.location.href='buy-credits.html'" style="width: 100%; justify-content: center; padding: 12px;">
+                    <i class="fas fa-shopping-cart"></i> Buy More Credits
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content (2x2 Grid Toolkit Builder) -->
     <main class="main-content toolkit-main" id="toolkitMainContent" style="display: none;">
         <div class="toolkit-header">
             <h1 class="page-title"><i class="fas fa-magic"></i> <span class="gradient-text">Toolkit Maker</span></h1>
-            <p class="page-description">Build responsive 2x2 grid websites with custom styles (5 Credits per style generation)</p>
+            <p class="page-description">Build responsive 2x2 grid toolkit websites with search & categories</p>
         </div>
 
         <div class="toolkit-builder">
@@ -176,7 +181,7 @@
                 </div>
             </div>
 
-            <!-- Section 2: Products/Tools (2x2 Grid) -->
+            <!-- Section 2: Products/Tools -->
             <div class="builder-section">
                 <h2 class="builder-section-title"><i class="fas fa-box"></i> Add Products/Tools (2x2 Grid)</h2>
                 <div class="products-list" id="productsList"></div>
@@ -195,7 +200,7 @@
                     <div class="form-group">
                         <label>Category (For Category Filter)</label>
                         <select id="productCategory">
-                            <option value="General Tools">General Tools</option>
+                            <option value="Tools">Tools</option>
                             <option value="AI Tools">AI Tools</option>
                             <option value="Photo AI">Photo AI</option>
                             <option value="Video Makers">Video Makers</option>
@@ -252,19 +257,16 @@
                 </div>
             </div>
 
-            <!-- Section 4: Premium Theme Selector (5 Credits per style) -->
+            <!-- Section 4: Theme Selector -->
             <div class="builder-section">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h2 class="builder-section-title" style="margin-bottom:0;"><i class="fas fa-palette"></i> Select Premium Theme Style</h2>
-                    <span style="font-size:12px; color:#ffd700; font-weight:700;"><i class="fas fa-coins"></i> 5 Credits / Theme Build</span>
-                </div>
+                <h2 class="builder-section-title"><i class="fas fa-palette"></i> Select Theme</h2>
                 <div class="themes-grid" id="themesGrid"></div>
             </div>
 
             <!-- Section 5: Generate -->
             <div class="builder-section generate-section">
                 <button class="generate-btn" onclick="generateToolkit()">
-                    <i class="fas fa-rocket"></i> CREATE 2x2 TOOLKIT (5 CREDITS)
+                    <i class="fas fa-rocket"></i> CREATE 2x2 GRID TOOLKIT
                 </button>
                 <div class="generation-progress" id="generationProgress" style="display:none;">
                     <div class="progress-steps" id="progressSteps"></div>
@@ -363,14 +365,14 @@
         </div>
     </div>
 
-    <!-- Insufficient Credits Modal -->
+    <!-- Insufficient Credits Modal (25 Credits) -->
     <div class="modal-overlay" id="insufficientModal" style="display: none;">
         <div class="modal-box insufficient-modal">
             <button class="modal-close" onclick="closeInsufficientModal()">&times;</button>
             <div class="modal-header">
                 <div class="insufficient-icon"><i class="fas fa-coins"></i></div>
                 <h2>Insufficient Credits</h2>
-                <p>You need at least 5 credits to generate with this premium style</p>
+                <p>You need 25 credits to unlock and use Toolkit Maker</p>
             </div>
             <div class="credits-info">
                 <div class="credit-row">
@@ -379,7 +381,7 @@
                 </div>
                 <div class="credit-row">
                     <span>Required Credits:</span>
-                    <strong id="requiredCreditsDisplay">5</strong>
+                    <strong id="requiredCreditsDisplay">25</strong>
                 </div>
             </div>
             <div class="modal-actions">
