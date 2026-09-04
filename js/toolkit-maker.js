@@ -1,31 +1,154 @@
-// ==========================================
-// TOOLKIT MAKER - SCRIPT (PERSISTENT UNLOCK)
-// ==========================================
+// =========================
+// TOOLKIT MAKER - COMPLETE SCRIPT
+// =========================
 
 const themes = [
-    { id: 'hacker', name: 'Hacker Type', bg: 'linear-gradient(135deg, #0a0a0a, #001a00)', accent: '#00ff00', cardBg: 'rgba(0, 20, 0, 0.8)', textColor: '#00ff00', font: 'monospace' },
-    { id: 'clean', name: 'Clean UI', bg: 'linear-gradient(135deg, #f5f5f5, #ffffff)', accent: '#3B82F6', cardBg: 'rgba(255, 255, 255, 0.9)', textColor: '#1a1a1a', font: 'Inter, sans-serif' },
-    { id: 'neon', name: 'Neon Cyber', bg: 'linear-gradient(135deg, #0a0a2e, #1a0030)', accent: '#ff00ff', cardBg: 'rgba(20, 0, 40, 0.8)', textColor: '#00ffff', font: 'Orbitron, sans-serif' },
-    { id: 'glass', name: 'Glassmorphism', bg: 'linear-gradient(135deg, #1a1a2e, #16213e)', accent: '#6D5CFF', cardBg: 'rgba(255, 255, 255, 0.1)', textColor: '#F5F5FF', font: 'Inter, sans-serif' },
-    { id: 'gradient', name: 'Modern Gradient', bg: 'linear-gradient(135deg, #667eea, #764ba2)', accent: '#ffd700', cardBg: 'rgba(255, 255, 255, 0.15)', textColor: '#ffffff', font: 'Inter, sans-serif' },
-    { id: 'dark', name: 'Dark Premium', bg: 'linear-gradient(135deg, #0a0a0a, #1a1a1a)', accent: '#ffd700', cardBg: 'rgba(30, 30, 30, 0.9)', textColor: '#ffffff', font: 'Inter, sans-serif' },
-    { id: 'minimal', name: 'Minimal White', bg: '#ffffff', accent: '#333333', cardBg: '#f8f8f8', textColor: '#333333', font: 'Inter, sans-serif' },
-    { id: 'futuristic', name: 'Futuristic Blue', bg: 'linear-gradient(135deg, #0a0a2e, #003366)', accent: '#00d4ff', cardBg: 'rgba(0, 40, 80, 0.8)', textColor: '#00d4ff', font: 'Orbitron, sans-serif' },
-    { id: 'purple', name: 'Purple Galaxy', bg: 'linear-gradient(135deg, #1a0030, #0a0a2e)', accent: '#9b59b6', cardBg: 'rgba(30, 0, 50, 0.8)', textColor: '#d4a5ff', font: 'Inter, sans-serif' },
-    { id: 'rgb', name: 'RGB Tech', bg: 'linear-gradient(45deg, #ff0000, #00ff00, #0000ff)', accent: '#ffffff', cardBg: 'rgba(0, 0, 0, 0.7)', textColor: '#ffffff', font: 'Orbitron, sans-serif' },
-    { id: 'elegant', name: 'Elegant Professional', bg: 'linear-gradient(135deg, #2c3e50, #3498db)', accent: '#ecf0f1', cardBg: 'rgba(255, 255, 255, 0.12)', textColor: '#ecf0f1', font: 'Georgia, serif' },
-    { id: 'colorful', name: 'Colorful Modern', bg: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)', accent: '#ffffff', cardBg: 'rgba(255, 255, 255, 0.2)', textColor: '#ffffff', font: 'Inter, sans-serif' },
-    { id: 'midnight', name: 'Midnight Tech', bg: 'linear-gradient(135deg, #0a0a1a, #1a1a3a)', accent: '#4169e1', cardBg: 'rgba(10, 10, 30, 0.8)', textColor: '#87ceeb', font: 'Inter, sans-serif' },
-    { id: 'aurora', name: 'Aurora', bg: 'linear-gradient(135deg, #00b4db, #0083b0, #00b4db)', accent: '#ffd700', cardBg: 'rgba(0, 60, 80, 0.7)', textColor: '#ffffff', font: 'Inter, sans-serif' },
-    { id: 'dashboard', name: 'Advanced Dashboard', bg: 'linear-gradient(135deg, #1a1a2e, #16213e)', accent: '#6D5CFF', cardBg: 'rgba(255, 255, 255, 0.08)', textColor: '#F5F5FF', font: 'Inter, sans-serif' }
+    {
+        id: 'hacker',
+        name: 'Hacker Type',
+        bg: 'linear-gradient(135deg, #0a0a0a, #001a00)',
+        accent: '#00ff00',
+        cardBg: 'rgba(0, 20, 0, 0.8)',
+        textColor: '#00ff00',
+        font: 'monospace'
+    },
+    {
+        id: 'clean',
+        name: 'Clean UI',
+        bg: 'linear-gradient(135deg, #f5f5f5, #ffffff)',
+        accent: '#3B82F6',
+        cardBg: 'rgba(255, 255, 255, 0.9)',
+        textColor: '#1a1a1a',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'neon',
+        name: 'Neon Cyber',
+        bg: 'linear-gradient(135deg, #0a0a2e, #1a0030)',
+        accent: '#ff00ff',
+        cardBg: 'rgba(20, 0, 40, 0.8)',
+        textColor: '#00ffff',
+        font: 'Orbitron, sans-serif'
+    },
+    {
+        id: 'glass',
+        name: 'Glassmorphism',
+        bg: 'linear-gradient(135deg, #1a1a2e, #16213e)',
+        accent: '#6D5CFF',
+        cardBg: 'rgba(255, 255, 255, 0.1)',
+        textColor: '#F5F5FF',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'gradient',
+        name: 'Modern Gradient',
+        bg: 'linear-gradient(135deg, #667eea, #764ba2)',
+        accent: '#ffd700',
+        cardBg: 'rgba(255, 255, 255, 0.15)',
+        textColor: '#ffffff',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'dark',
+        name: 'Dark Premium',
+        bg: 'linear-gradient(135deg, #0a0a0a, #1a1a1a)',
+        accent: '#ffd700',
+        cardBg: 'rgba(30, 30, 30, 0.9)',
+        textColor: '#ffffff',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'minimal',
+        name: 'Minimal White',
+        bg: '#ffffff',
+        accent: '#333333',
+        cardBg: '#f8f8f8',
+        textColor: '#333333',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'futuristic',
+        name: 'Futuristic Blue',
+        bg: 'linear-gradient(135deg, #0a0a2e, #003366)',
+        accent: '#00d4ff',
+        cardBg: 'rgba(0, 40, 80, 0.8)',
+        textColor: '#00d4ff',
+        font: 'Orbitron, sans-serif'
+    },
+    {
+        id: 'purple',
+        name: 'Purple Galaxy',
+        bg: 'linear-gradient(135deg, #1a0030, #0a0a2e)',
+        accent: '#9b59b6',
+        cardBg: 'rgba(30, 0, 50, 0.8)',
+        textColor: '#d4a5ff',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'rgb',
+        name: 'RGB Tech',
+        bg: 'linear-gradient(45deg, #ff0000, #00ff00, #0000ff)',
+        accent: '#ffffff',
+        cardBg: 'rgba(0, 0, 0, 0.7)',
+        textColor: '#ffffff',
+        font: 'Orbitron, sans-serif'
+    },
+    {
+        id: 'elegant',
+        name: 'Elegant Professional',
+        bg: 'linear-gradient(135deg, #2c3e50, #3498db)',
+        accent: '#ecf0f1',
+        cardBg: 'rgba(255, 255, 255, 0.12)',
+        textColor: '#ecf0f1',
+        font: 'Georgia, serif'
+    },
+    {
+        id: 'colorful',
+        name: 'Colorful Modern',
+        bg: 'linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1)',
+        accent: '#ffffff',
+        cardBg: 'rgba(255, 255, 255, 0.2)',
+        textColor: '#ffffff',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'midnight',
+        name: 'Midnight Tech',
+        bg: 'linear-gradient(135deg, #0a0a1a, #1a1a3a)',
+        accent: '#4169e1',
+        cardBg: 'rgba(10, 10, 30, 0.8)',
+        textColor: '#87ceeb',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'aurora',
+        name: 'Aurora',
+        bg: 'linear-gradient(135deg, #00b4db, #0083b0, #00b4db)',
+        accent: '#ffd700',
+        cardBg: 'rgba(0, 60, 80, 0.7)',
+        textColor: '#ffffff',
+        font: 'Inter, sans-serif'
+    },
+    {
+        id: 'dashboard',
+        name: 'Advanced Dashboard',
+        bg: 'linear-gradient(135deg, #1a1a2e, #16213e)',
+        accent: '#6D5CFF',
+        cardBg: 'rgba(255, 255, 255, 0.08)',
+        textColor: '#F5F5FF',
+        font: 'Inter, sans-serif'
+    }
 ];
 
+// State
 let products = [];
 let selectedTheme = 'glass';
 let profileImageData = null;
 let editingProductIndex = -1;
 let isGenerating = false;
+let isToolkitUnlocked = false;
 
+// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
     renderThemes();
     initProductForm();
@@ -39,6 +162,7 @@ function initProductForm() {
     renderProducts();
 }
 
+// Check and show the 25 Credits Unlock screen
 function initToolkitPage(user) {
     const loadingOverlay = document.getElementById('toolkitLoadingOverlay');
     const mainContent = document.getElementById('toolkitMainContent');
@@ -53,14 +177,11 @@ function initToolkitPage(user) {
         return;
     }
     
-    // Check if user already unlocked toolkit in this session
-    const isSessionUnlocked = sessionStorage.getItem('toolkit_unlocked_' + user.uid) === 'true';
-    
+    // Fetch latest user data from Firestore
     db.collection('users').doc(user.uid).get().then((doc) => {
         if (loadingOverlay) loadingOverlay.style.display = 'none';
         
         currentUserData = doc.exists ? doc.data() : { credits: 0, accountStatus: 'active' };
-        currentUserData.credits = typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
         updateUserUI(user, currentUserData);
         
         if (currentUserData.accountStatus === 'disabled') {
@@ -79,36 +200,38 @@ function initToolkitPage(user) {
             return;
         }
         
-        if (isSessionUnlocked) {
+        if (isToolkitUnlocked) {
+            // Already unlocked during this session
             if (unlockPrompt) unlockPrompt.style.display = 'none';
             if (protectedAccess) protectedAccess.style.display = 'none';
             if (mainContent) mainContent.style.display = 'block';
-            renderThemes();
-            renderProducts();
         } else {
+            // Show 25 credits unlock prompt
             if (protectedAccess) protectedAccess.style.display = 'none';
             if (mainContent) mainContent.style.display = 'none';
             if (unlockPrompt) {
                 unlockPrompt.style.display = 'flex';
                 const currentCredsEl = document.getElementById('unlockCurrentCredits');
                 if (currentCredsEl) {
-                    currentCredsEl.textContent = currentUserData.credits;
+                    currentCredsEl.textContent = currentUserData.credits || 0;
                 }
             }
         }
     }).catch((err) => {
-        console.error("Error loading user in toolkit:", err);
+        console.error("Error loading user state:", err);
         if (loadingOverlay) loadingOverlay.style.display = 'none';
+        if (unlockPrompt) unlockPrompt.style.display = 'flex';
     });
 }
 
+// User clicks "Unlock Now (25 Credits)"
 function payAndOpenToolkit() {
     if (!currentUser) {
         openAuthModal('login');
         return;
     }
     
-    const credits = currentUserData && typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
+    const credits = currentUserData ? (currentUserData.credits || 0) : 0;
     
     if (credits < 25) {
         showInsufficientCredits(25);
@@ -122,8 +245,7 @@ function payAndOpenToolkit() {
     }
     
     deductCredits(25, 'toolkit_maker_unlock', 'Toolkit Maker feature access').then((newCredits) => {
-        // Save session state so refresh does not ask or deduct again
-        sessionStorage.setItem('toolkit_unlocked_' + currentUser.uid, 'true');
+        isToolkitUnlocked = true;
         showToast('25 credits deducted! Toolkit Maker unlocked.', 'success');
         
         const unlockPrompt = document.getElementById('toolkitUnlockPrompt');
@@ -163,6 +285,10 @@ function showProtectedAccess() {
     if (unlockPrompt) unlockPrompt.style.display = 'none';
     if (protectedAccess) protectedAccess.style.display = 'flex';
 }
+
+// =========================
+// THEMES & PRODUCTS
+// =========================
 
 function renderThemes() {
     const themesGrid = document.getElementById('themesGrid');
@@ -314,6 +440,10 @@ function deleteProduct(index) {
     }
 }
 
+// =========================
+// CODE GENERATOR
+// =========================
+
 function generateToolkit() {
     if (isGenerating) return;
     
@@ -385,7 +515,7 @@ function buildToolkitCode() {
     const popupEnabled = popupToggle ? popupToggle.checked : false;
     
     const theme = themes.find(t => t.id === selectedTheme) || themes[3];
-    const profileImg = profileImageData || 'https://raw.githubusercontent.com/Devile146/Website/main/Dppic.jpg';
+    const profileImg = profileImageData || 'https://raw.githubusercontent.com/Devile146/Demols/main/Fahad.jpg';
     
     const productsHTML = products.map((product) => {
         const isFree = product.type === 'free';
@@ -577,4 +707,16 @@ function downloadCode() {
     URL.revokeObjectURL(url);
     
     showToast('Toolkit downloaded successfully!', 'success');
-                               }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    });
+}
+
+function escapeJsString(str) {
+    if (!str) return '';
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
