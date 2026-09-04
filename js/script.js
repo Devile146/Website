@@ -1,5 +1,5 @@
 // =========================================================
-// FAHAD TECH - MAIN SCRIPT (NUMERIC REFERRAL & PHOTO SYNC)
+// FAHAD TECH - MAIN SCRIPT (PHONE BASED 9-DIGIT UID & REFS)
 // =========================================================
 
 const CONFIG = {
@@ -7,7 +7,7 @@ const CONFIG = {
     TELEGRAM_LINK: "https://t.me/fahad_tricks_bot",
     EMAIL_LINK: "mailto:fahadali2727@gmail.com",
     PREMIUM_WHATSAPP: "https://wa.me/923251138959",
-    PROFILE_IMAGE: "https://raw.githubusercontent.com/Devile146/Website/main/Dppic.jpg"
+    DEFAULT_AVATAR: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236D5CFF'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"
 };
 
 var currentUser = null;
@@ -16,7 +16,7 @@ var isProcessingTool = false;
 var activeToolsList = [];
 var selectedToolIdForAccess = null;
 
-// Capture 10-digit Referral Code from URL (?ref=1234567890)
+// Capture 9-Digit Referral Code from URL (?ref=123456789)
 (function captureReferralParam() {
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -36,9 +36,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Helper: Generate clean 10-digit numeric referral code
-function generateNumericRefCode() {
-    return Math.floor(1000000000 + Math.random() * 9000000000).toString();
+// Helper: Generate 9-digit UID (with last 3 digits from phone if available)
+function generateSmartUID(phone) {
+    let last3 = "786";
+    if (phone) {
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length >= 3) {
+            last3 = cleanPhone.slice(-3);
+        }
+    } else {
+        last3 = Math.floor(100 + Math.random() * 900).toString();
+    }
+    const prefix6 = Math.floor(100000 + Math.random() * 900000).toString();
+    return prefix6 + last3; // Exact 9 Numbers
 }
 
 // Load Tools from Firestore Backend
@@ -72,12 +82,8 @@ function loadToolsFromBackend() {
         renderTools('all');
         checkUrlCategory();
     }).catch((err) => {
-        console.error("Error loading tools from backend:", err);
+        console.error("Error loading tools:", err);
         if (toolsLoading) toolsLoading.style.display = 'none';
-        if (typeof toolsData !== 'undefined') {
-            activeToolsList = toolsData.map((t, idx) => ({ id: 'local_' + idx, ...t }));
-            renderTools('all');
-        }
     });
 }
 
@@ -95,7 +101,7 @@ function initAuthState() {
     });
 }
 
-// Load User Data from Firestore (No reset on refresh)
+// Load User Data from Firestore (Strictly prevents credit reset on refresh)
 function loadUserData(user) {
     if (!user) return;
     
@@ -104,25 +110,26 @@ function loadUserData(user) {
             currentUserData = doc.data();
             currentUserData.credits = typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
             
-            // Assign numeric referral code if not already present
-            if (!currentUserData.referralCode) {
-                const newCode = generateNumericRefCode();
-                db.collection('users').doc(user.uid).update({ referralCode: newCode });
-                currentUserData.referralCode = newCode;
+            // Generate smart UID if missing
+            if (!currentUserData.referralCode || currentUserData.referralCode === '0000000000') {
+                const smartCode = generateSmartUID(currentUserData.phone || '');
+                db.collection('users').doc(user.uid).update({ referralCode: smartCode });
+                currentUserData.referralCode = smartCode;
             }
             
             updateUserUI(user, currentUserData);
         } else {
-            const newCode = generateNumericRefCode();
+            const smartCode = generateSmartUID('');
             const userData = {
                 uid: user.uid,
                 displayName: user.displayName || 'User',
                 email: user.email || '',
+                phone: '',
                 photoURL: '',
-                referralCode: newCode,
+                referralCode: smartCode,
                 totalReferrals: 0,
                 unclaimedReferrals: 0,
-                credits: 25, // 25 Free Signup Credits (1-Time)
+                credits: 25, // 25 Free Signup Welcome Credits
                 accountStatus: 'active',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -145,13 +152,13 @@ function updateUserUI(user, userData) {
     const mobileAuthArea = document.getElementById('mobileAuthArea');
     
     const credits = userData && typeof userData.credits === 'number' ? userData.credits : 0;
-    const photo = (userData && userData.photoURL) || CONFIG.PROFILE_IMAGE;
+    const photo = (userData && userData.photoURL) || CONFIG.DEFAULT_AVATAR;
     
     if (guestButtons) guestButtons.style.display = 'none';
     if (userLoggedIn) userLoggedIn.style.display = 'flex';
     
     if (navUserName) {
-        navUserName.textContent = (userData && userData.displayName) || (user && user.displayName) || 'Account';
+        navUserName.textContent = (userData && userData.displayName) || 'Account';
     }
     
     if (navCredits) {
@@ -166,15 +173,13 @@ function updateUserUI(user, userData) {
     if (mobileAuthArea) {
         mobileAuthArea.innerHTML = `
             <div class="mobile-user-info" style="display:flex;align-items:center;gap:10px;">
-                <img src="${photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #6D5CFF;" onerror="this.src='${CONFIG.PROFILE_IMAGE}'">
+                <img src="${photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #6D5CFF;" onerror="this.src='${CONFIG.DEFAULT_AVATAR}'">
                 <div>
                     <span class="mobile-user-name" style="display:block;font-weight:700;">${(userData && userData.displayName) || 'User'}</span>
                     <span class="mobile-user-credits" style="color:#ffd700;font-size:12px;"><i class="fas fa-coins"></i> ${credits} Credits</span>
                 </div>
             </div>
-            <button class="mobile-logout-btn" onclick="logoutUser()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <button class="mobile-logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Logout</button>
         `;
     }
 }
@@ -189,12 +194,8 @@ function showGuestState() {
     
     if (mobileAuthArea) {
         mobileAuthArea.innerHTML = `
-            <button class="mobile-auth-btn" onclick="openAuthModal('login')">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-            <button class="mobile-auth-btn" onclick="openAuthModal('register')">
-                <i class="fas fa-user-plus"></i> Create Account
-            </button>
+            <button class="mobile-auth-btn" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button class="mobile-auth-btn" onclick="openAuthModal('register')"><i class="fas fa-user-plus"></i> Create Account</button>
         `;
     }
 }
@@ -233,9 +234,7 @@ function switchAuthMode(mode) {
 
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
-    if (input) {
-        input.type = input.type === 'password' ? 'text' : 'password';
-    }
+    if (input) input.type = input.type === 'password' ? 'text' : 'password';
 }
 
 function handleLogin(event) {
@@ -265,7 +264,7 @@ function handleLogin(event) {
     });
 }
 
-// Registration with numeric referral tracking
+// User Registration with 9-Digit Smart Referral Tracking
 async function handleRegister(event) {
     event.preventDefault();
     const name = document.getElementById('registerName').value.trim();
@@ -278,12 +277,10 @@ async function handleRegister(event) {
         showToast('Please fill in all fields', 'error');
         return;
     }
-    
     if (password.length < 6) {
         showToast('Password must be at least 6 characters', 'error');
         return;
     }
-    
     if (password !== confirmPassword) {
         showToast('Passwords do not match', 'error');
         return;
@@ -297,12 +294,11 @@ async function handleRegister(event) {
         const user = userCredential.user;
         await user.updateProfile({ displayName: name });
         
-        const myReferralCode = generateNumericRefCode();
+        const myReferralCode = generateSmartUID('');
         const pendingRefCode = localStorage.getItem('pending_fahad_ref');
         let referredByUid = null;
         let referredByCode = null;
         
-        // If user registered through referral link
         if (pendingRefCode) {
             const inviterSnapshot = await db.collection('users').where('referralCode', '==', pendingRefCode).limit(1).get();
             if (!inviterSnapshot.empty) {
@@ -310,6 +306,7 @@ async function handleRegister(event) {
                 referredByUid = inviterDoc.id;
                 referredByCode = pendingRefCode;
                 
+                // Real-time increment on inviter document
                 await db.collection('users').doc(referredByUid).update({
                     totalReferrals: firebase.firestore.FieldValue.increment(1),
                     unclaimedReferrals: firebase.firestore.FieldValue.increment(1),
@@ -323,13 +320,14 @@ async function handleRegister(event) {
             uid: user.uid,
             displayName: name,
             email: email,
+            phone: '',
             photoURL: '',
             referralCode: myReferralCode,
             referredBy: referredByUid,
             referredByCode: referredByCode,
             totalReferrals: 0,
             unclaimedReferrals: 0,
-            credits: 25, // 25 Free Welcome Credits on Signup
+            credits: 25, // 🎁 25 Free Welcome Credits on Signup
             accountStatus: 'active',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -354,11 +352,9 @@ function logoutUser() {
     sessionStorage.clear();
     auth.signOut().then(() => {
         showToast('Logged out successfully', 'success');
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 800);
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
     }).catch((error) => {
-        showToast('Error logging out: ' + error.message, 'error');
+        showToast('Error: ' + error.message, 'error');
     });
 }
 
@@ -370,24 +366,17 @@ function goToAccount() {
 function renderTools(category = 'all', searchTerm = '') {
     const toolsGrid = document.getElementById('toolsGrid');
     const toolsEmpty = document.getElementById('toolsEmpty');
-    
     if (!toolsGrid) return;
     
     let filteredTools = activeToolsList;
-    
-    if (category !== 'all') {
-        filteredTools = filteredTools.filter(tool => tool.category === category);
-    }
-    
+    if (category !== 'all') filteredTools = filteredTools.filter(t => t.category === category);
     if (searchTerm) {
-        filteredTools = filteredTools.filter(tool => 
-            tool.name.toLowerCase().includes(searchTerm) ||
-            (tool.description && tool.description.toLowerCase().includes(searchTerm))
+        filteredTools = filteredTools.filter(t => 
+            t.name.toLowerCase().includes(searchTerm) || (t.description && t.description.toLowerCase().includes(searchTerm))
         );
     }
     
     toolsGrid.innerHTML = '';
-    
     if (filteredTools.length === 0) {
         toolsGrid.style.display = 'none';
         if (toolsEmpty) toolsEmpty.style.display = 'block';
@@ -402,25 +391,19 @@ function renderTools(category = 'all', searchTerm = '') {
         card.classList.add('tool-card');
         card.style.animationDelay = (index * 0.03) + 's';
         
-        const isPremium = tool.type === 'premium';
-        
-        if (isPremium) {
+        if (tool.type === 'premium') {
             card.innerHTML = `
-                <div class="tool-icon">
-                    <i class="${tool.icon || 'fas fa-crown'}"></i>
-                </div>
+                <div class="tool-icon"><i class="${tool.icon || 'fas fa-crown'}"></i></div>
                 <span class="tool-category-badge premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
                 <h3>${escapeHtml(tool.name)}</h3>
                 <p>${escapeHtml(tool.description)}</p>
-                <button onclick="contactAdminForPremium('${escapeHtml(tool.name)}')" class="tool-btn premium-btn">
+                <button onclick="window.open('${CONFIG.PREMIUM_WHATSAPP}?text=${encodeURIComponent('Hello! I am interested in: ' + tool.name)}', '_blank')" class="tool-btn premium-btn">
                     Contact Admin <i class="fas fa-crown"></i>
                 </button>
             `;
         } else {
             card.innerHTML = `
-                <div class="tool-icon">
-                    <i class="${tool.icon || 'fas fa-tools'}"></i>
-                </div>
+                <div class="tool-icon"><i class="${tool.icon || 'fas fa-tools'}"></i></div>
                 <span class="tool-category-badge">${getCategoryName(tool.category)}</span>
                 <h3>${escapeHtml(tool.name)}</h3>
                 <p>${escapeHtml(tool.description)}</p>
@@ -429,16 +412,10 @@ function renderTools(category = 'all', searchTerm = '') {
                 </button>
             `;
         }
-        
         toolsGrid.appendChild(card);
     });
 }
 
-function contactAdminForPremium(toolName) {
-    window.open(`${CONFIG.PREMIUM_WHATSAPP}?text=${encodeURIComponent('Hello! I am interested in premium tool: ' + toolName)}`, '_blank');
-}
-
-// Secure Tool Unlock (5 Credits)
 function openVisitModal(toolId, toolName, creditCost = 5) {
     selectedToolIdForAccess = toolId;
     const modal = document.getElementById('visitModal');
@@ -464,32 +441,12 @@ function closeModal() {
 
 function processToolAccess() {
     if (isProcessingTool) return;
-    
-    if (!currentUser) {
-        closeModal();
-        openAuthModal('login');
-        return;
-    }
-    
-    if (currentUserData && currentUserData.accountStatus === 'disabled') {
-        closeModal();
-        showToast('Your account is disabled. Please contact support.', 'error');
-        return;
-    }
+    if (!currentUser) { closeModal(); openAuthModal('login'); return; }
     
     const userCredits = currentUserData ? (currentUserData.credits || 0) : 0;
-    if (userCredits < 5) {
-        closeModal();
-        showInsufficientCredits(5);
-        return;
-    }
+    if (userCredits < 5) { closeModal(); showInsufficientCredits(5); return; }
     
     isProcessingTool = true;
-    const visitBtn = document.getElementById('visitLink') || document.getElementById('confirmToolAccessBtn');
-    if (visitBtn) {
-        visitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Unlocking Tool...';
-    }
-
     const newTab = window.open('about:blank', '_blank');
     const userRef = db.collection('users').doc(currentUser.uid);
     
@@ -498,64 +455,43 @@ function processToolAccess() {
             if (!userDoc.exists) throw new Error('User not found');
             const data = userDoc.data();
             const currCreds = typeof data.credits === 'number' ? data.credits : 0;
-            
-            if (currCreds < 5) {
-                throw new Error('Insufficient credits');
-            }
+            if (currCreds < 5) throw new Error('Insufficient credits');
             
             const newCreds = currCreds - 5;
             transaction.update(userRef, {
                 credits: newCreds,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            
             return newCreds;
         });
     }).then((newCredits) => {
         if (currentUserData) currentUserData.credits = newCredits;
         updateCreditsDisplay(newCredits);
-        
         return db.collection('tools').doc(selectedToolIdForAccess).get();
     }).then((toolDoc) => {
         isProcessingTool = false;
         closeModal();
-        
-        let toolUrl = '';
-        if (toolDoc && toolDoc.exists) {
-            toolUrl = toolDoc.data().link;
-        } else if (typeof toolsData !== 'undefined') {
-            const found = toolsData.find(t => t.name === document.getElementById('modalToolName').textContent);
-            if (found) toolUrl = found.link;
-        }
-        
+        let toolUrl = toolDoc.exists ? toolDoc.data().link : '';
         if (toolUrl) {
             newTab.location.href = toolUrl;
             showToast('5 credits deducted. Tool unlocked!', 'success');
-            logTransaction('tool_access', document.getElementById('modalToolName').textContent, -5);
         } else {
             newTab.close();
-            showToast('Tool link unavailable. Please contact support.', 'error');
+            showToast('Tool link unavailable', 'error');
         }
     }).catch((error) => {
         isProcessingTool = false;
         if (newTab) newTab.close();
         closeModal();
-        if (error.message === 'Insufficient credits') {
-            showInsufficientCredits(5);
-        } else {
-            showToast(error.message, 'error');
-        }
+        showToast(error.message, 'error');
     });
 }
 
 function filterTools(category) {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.dataset.filter === category) {
-            btn.classList.add('active');
-        }
+        if (btn.dataset.filter === category) btn.classList.add('active');
     });
-    
     const searchTerm = document.getElementById('toolSearchInput')?.value || '';
     renderTools(category, searchTerm);
 }
@@ -563,25 +499,16 @@ function filterTools(category) {
 function searchTools() {
     const searchInput = document.getElementById('toolSearchInput');
     if (!searchInput) return;
-    const searchTerm = searchInput.value.toLowerCase();
-    const activeCategory = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
-    renderTools(activeCategory, searchTerm);
+    renderTools(document.querySelector('.filter-btn.active')?.dataset.filter || 'all', searchInput.value.toLowerCase());
 }
 
 function checkUrlCategory() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const category = urlParams.get('category');
-    if (category) filterTools(category);
+    const cat = new URLSearchParams(window.location.search).get('category');
+    if (cat) filterTools(cat);
 }
 
 function getCategoryName(category) {
-    const names = {
-        'ai': 'AI Tools', 'photo': 'Photo AI', 'video': 'Video Makers',
-        'osint': 'OSINT', 'telegram': 'Telegram Bots', 'encoder': 'Encoders',
-        'social': 'Social Media', 'mods': 'Mod Apps', 'hacking': 'Hacking',
-        'prank': 'Prank', 'courses': 'Courses', 'gaming': 'Gaming',
-        'fonts': 'Fonts', 'utility': 'Utilities', 'premium': 'Premium'
-    };
+    const names = { 'ai': 'AI Tools', 'photo': 'Photo AI', 'video': 'Video Makers', 'osint': 'OSINT', 'telegram': 'Telegram Bots', 'encoder': 'Encoders', 'social': 'Social Media', 'mods': 'Mod Apps', 'hacking': 'Hacking', 'prank': 'Prank', 'courses': 'Courses', 'gaming': 'Gaming', 'fonts': 'Fonts', 'utility': 'Utilities', 'premium': 'Premium' };
     return names[category] || category;
 }
 
@@ -589,16 +516,8 @@ function initMobileMenu() {
     const hamburger = document.getElementById('hamburgerBtn');
     const mobileMenu = document.getElementById('mobileMenu');
     if (hamburger && mobileMenu) {
-        hamburger.addEventListener('click', function() {
-            hamburger.classList.toggle('active');
-            mobileMenu.classList.toggle('open');
-        });
-        mobileMenu.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', function() {
-                hamburger.classList.remove('active');
-                mobileMenu.classList.remove('open');
-            });
-        });
+        hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); mobileMenu.classList.toggle('open'); });
+        mobileMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { hamburger.classList.remove('active'); mobileMenu.classList.remove('open'); }));
     }
 }
 
@@ -610,7 +529,7 @@ function initContactLinks() {
 
 function initProfileImage() {
     const profileImg = document.getElementById('profileImage');
-    if (profileImg) profileImg.src = (currentUserData && currentUserData.photoURL) || CONFIG.PROFILE_IMAGE;
+    if (profileImg) profileImg.src = (currentUserData && currentUserData.photoURL) || CONFIG.DEFAULT_AVATAR;
 }
 
 function showToast(message, type = 'info') {
@@ -623,38 +542,14 @@ function showToast(message, type = 'info') {
     }
     const toast = document.createElement('div');
     toast.classList.add('toast', `toast-${type}`);
-    const icons = {
-        'success': 'fas fa-check-circle',
-        'error': 'fas fa-exclamation-circle',
-        'info': 'fas fa-info-circle',
-        'warning': 'fas fa-exclamation-triangle'
-    };
+    const icons = { 'success': 'fas fa-check-circle', 'error': 'fas fa-exclamation-circle', 'info': 'fas fa-info-circle', 'warning': 'fas fa-exclamation-triangle' };
     toast.innerHTML = `<i class="${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
     container.appendChild(toast);
     setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
 }
 
 function escapeHtml(text) {
     if (!text) return '';
-    return String(text).replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-    });
-}
-
-window.onclick = function(event) {
-    if (event.target === document.getElementById('visitModal')) closeModal();
-    if (event.target === document.getElementById('authModal')) closeAuthModal();
-    if (event.target === document.getElementById('insufficientModal')) closeInsufficientModal();
-};
-
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closeModal();
-        closeAuthModal();
-        closeInsufficientModal();
-    }
-});
+    return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+            }
