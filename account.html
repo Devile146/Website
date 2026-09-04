@@ -1,500 +1,555 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>My Account - Fahad Tech</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/account.css">
+// =========================================================
+// FAHAD TECH - MAIN SCRIPT (PHONE BASED 9-DIGIT UID & REFS)
+// =========================================================
+
+const CONFIG = {
+    WHATSAPP_LINK: "https://wa.me/923251138960",
+    TELEGRAM_LINK: "https://t.me/fahad_tricks_bot",
+    EMAIL_LINK: "mailto:fahadali2727@gmail.com",
+    PREMIUM_WHATSAPP: "https://wa.me/923251138959",
+    DEFAULT_AVATAR: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236D5CFF'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"
+};
+
+var currentUser = null;
+var currentUserData = null;
+var isProcessingTool = false;
+var activeToolsList = [];
+var selectedToolIdForAccess = null;
+
+// Capture 9-Digit Referral Code from URL (?ref=123456789)
+(function captureReferralParam() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref');
+    if (refCode && /^\d+$/.test(refCode)) {
+        localStorage.setItem('pending_fahad_ref', refCode);
+    }
+})();
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    initMobileMenu();
+    initContactLinks();
+    initProfileImage();
     
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="js/firebase-config.js"></script>
-</head>
-<body class="account-page">
-    <div class="page-background"></div>
-    <div class="bg-glow-purple"></div>
-    <div class="bg-glow-blue"></div>
+    if (document.getElementById('toolsGrid')) {
+        loadToolsFromBackend();
+    }
+});
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">
-                <div class="logo-icon">FT</div>
-                <div class="logo-text">
-                    <span class="logo-name">FAHAD TECH</span>
-                    <span class="logo-tagline">Premium Platform</span>
-                </div>
-            </a>
-            <div class="nav-center">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="tools.html" class="nav-link">Tools</a>
-                <a href="categories.html" class="nav-link">Categories</a>
-                <a href="toolkit-maker.html" class="nav-link">Toolkit Maker</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="contact.html" class="nav-link">Contact</a>
-            </div>
-            <div class="nav-right">
-                <div class="user-account-area" id="userAccountArea">
-                    <div class="guest-buttons" id="guestButtons">
-                        <button class="nav-auth-btn login-btn" onclick="openAuthModal('login')">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </button>
-                        <button class="nav-auth-btn register-btn" onclick="openAuthModal('register')">
-                            <i class="fas fa-user-plus"></i> Create Account
-                        </button>
-                    </div>
-                    <div class="user-logged-in" id="userLoggedIn" style="display: none;">
-                        <div class="user-credits-display">
-                            <i class="fas fa-coins"></i>
-                            <span id="navCredits">0</span>
-                            <span class="credits-label">Credits</span>
-                        </div>
-                        <div class="user-profile-menu">
-                            <button class="profile-btn" onclick="goToAccount()">
-                                <i class="fas fa-user-circle"></i>
-                                <span id="navUserName">Account</span>
-                            </button>
-                            <button class="logout-btn" onclick="logoutUser()">
-                                <i class="fas fa-sign-out-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <button class="hamburger" id="hamburgerBtn">
-                    <span></span><span></span><span></span>
-                </button>
-            </div>
-        </div>
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="index.html">Home</a>
-            <a href="tools.html">Tools</a>
-            <a href="categories.html">Categories</a>
-            <a href="toolkit-maker.html">Toolkit Maker</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-            <div class="mobile-auth-area" id="mobileAuthArea"></div>
-        </div>
-    </nav>
+// Helper: Generate 9-digit UID (with last 3 digits from phone if available)
+function generateSmartUID(phone) {
+    let last3 = "786";
+    if (phone) {
+        const cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.length >= 3) {
+            last3 = cleanPhone.slice(-3);
+        }
+    } else {
+        last3 = Math.floor(100 + Math.random() * 900).toString();
+    }
+    const prefix6 = Math.floor(100000 + Math.random() * 900000).toString();
+    return prefix6 + last3; // Exact 9 Numbers
+}
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-inner">
-            <a href="index.html" class="sidebar-link"><i class="fas fa-home"></i><span>Home</span></a>
-            <a href="tools.html" class="sidebar-link"><i class="fas fa-tools"></i><span>Tools</span></a>
-            <a href="categories.html" class="sidebar-link"><i class="fas fa-th-large"></i><span>Categories</span></a>
-            <a href="toolkit-maker.html" class="sidebar-link"><i class="fas fa-magic"></i><span>Toolkit Maker</span></a>
-            <a href="about.html" class="sidebar-link"><i class="fas fa-user"></i><span>About</span></a>
-            <a href="contact.html" class="sidebar-link"><i class="fas fa-envelope"></i><span>Contact</span></a>
-        </div>
-        <div class="sidebar-footer">
-            <a href="https://wa.me/923251138960" target="_blank" class="sidebar-social"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://t.me/fahad_tricks_bot" target="_blank" class="sidebar-social"><i class="fab fa-telegram"></i></a>
-            <a href="mailto:fahadali2727@gmail.com" class="sidebar-social"><i class="fas fa-envelope"></i></a>
-        </div>
-    </aside>
+// Load Tools from Firestore Backend
+function loadToolsFromBackend() {
+    const toolsGrid = document.getElementById('toolsGrid');
+    const toolsLoading = document.getElementById('toolsLoading');
+    
+    if (toolsLoading) toolsLoading.style.display = 'block';
 
-    <!-- Main Content -->
-    <main class="main-content account-main">
-        <div class="page-header">
-            <h1 class="page-title">My <span class="gradient-text">Account</span></h1>
-            <p class="page-description">Manage profile photo, credits and referrals</p>
-        </div>
-
-        <div id="accountLoading" class="account-loading">
-            <div class="loading-spinner"></div>
-            <p>Loading your account...</p>
-        </div>
-
-        <div id="accountContent" style="display: none;">
-            <div class="account-grid">
-                <!-- Profile Card with Photo Upload -->
-                <div class="account-card profile-card" style="text-align:center;">
-                    <div style="position:relative; width:90px; height:90px; margin:0 auto 12px;">
-                        <img id="userAvatarImg" src="Dppic.jpg" style="width:100%; height:100%; border-radius:50%; object-fit:cover; border:3px solid #6D5CFF;" onerror="this.src='Dppic.jpg'">
-                        <label for="avatarUploadInput" style="position:absolute; bottom:0; right:0; background:#6D5CFF; color:#fff; width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; box-shadow:0 2px 6px rgba(0,0,0,0.4);" title="Change Photo">
-                            <i class="fas fa-camera"></i>
-                        </label>
-                        <input type="file" id="avatarUploadInput" accept="image/*" style="display:none;" onchange="uploadUserProfilePhoto(event)">
-                    </div>
-                    <h2 id="accountName" class="account-name" style="font-size:18px;">User</h2>
-                    <p id="accountEmail" class="account-email" style="font-size:12px; color:#aaa; margin-bottom:8px;">email@example.com</p>
-                    <div class="account-status" id="accountStatus">
-                        <span class="status-dot active"></span><span>Active</span>
-                    </div>
-                </div>
-
-                <!-- Credits Balance Card -->
-                <div class="account-card credits-card">
-                    <div class="account-card-header">
-                        <i class="fas fa-coins"></i>
-                        <h3>Credits Balance</h3>
-                    </div>
-                    <div class="credits-amount">
-                        <i class="fas fa-coins"></i>
-                        <span id="accountCredits">0</span>
-                    </div>
-                    <p class="credits-label">Available Credits</p>
-                    <button class="buy-more-btn" onclick="window.location.href='buy-credits.html'">
-                        <i class="fas fa-shopping-cart"></i> Buy More Credits
-                    </button>
-                </div>
-
-                <!-- 10-Digit Referral Program Card -->
-                <div class="account-card member-card">
-                    <div class="account-card-header">
-                        <i class="fas fa-users"></i>
-                        <h3>Referral Program</h3>
-                    </div>
-                    <div style="margin-top:10px;">
-                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px;">
-                            <span>Invited Users:</span>
-                            <strong id="accTotalReferrals" style="color:#4ade80;">0</strong>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:10px;">
-                            <span>Unclaimed:</span>
-                            <strong id="accUnclaimedReferrals" style="color:#ffd700;">0 (Need 3 to Claim)</strong>
-                        </div>
-                        
-                        <div style="background:rgba(0,0,0,0.3); border:1px dashed rgba(109,92,255,0.4); border-radius:8px; padding:8px; margin-bottom:10px;">
-                            <span style="font-size:10px; color:#aaa; display:block; margin-bottom:4px;">Your 10-Digit Invitation Link:</span>
-                            <div style="display:flex; gap:6px;">
-                                <input type="text" id="accReferralLinkInput" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:6px; color:#ffd700; font-size:11px; font-weight:700; width:100%;" readonly>
-                                <button onclick="copyAccountRefLink()" style="background:#6D5CFF; color:#fff; border:none; border-radius:6px; padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer;"><i class="fas fa-copy"></i></button>
-                            </div>
-                        </div>
-
-                        <button id="claimReferralBtn" onclick="claimAccountReferralRewards()" style="width:100%; padding:10px; background:rgba(255,255,255,0.08); color:#888; border:none; border-radius:8px; font-size:11px; font-weight:700; cursor:not-allowed;" disabled>
-                            <i class="fas fa-lock"></i> Need 3 Referrals to Claim
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Free WhatsApp Group Reward Card -->
-            <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px; margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:42px; height:42px; border-radius:10px; background:rgba(74, 222, 128, 0.15); color:#25D366; display:flex; align-items:center; justify-content:center; font-size:24px;">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px; font-weight:700; margin-bottom:2px;">Join Official WhatsApp Group</h4>
-                        <span style="font-size:11px; color:#ffd700; font-weight:700;"><i class="fas fa-coins"></i> +10 Free Credits (1-Time Claim)</span>
-                    </div>
-                </div>
-                <div id="waClaimArea" style="display:flex; gap:8px;">
-                    <a href="https://chat.whatsapp.com/BDdh6Q1YyjpLJaqjjMATyS?s=cl&p=a&mlu=4&ilr=4" target="_blank" onclick="sessionStorage.setItem('wa_acc_opened','true')" style="background:#25D366; color:#000; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                        <i class="fab fa-whatsapp"></i> Join WhatsApp Group
-                    </a>
-                    <button id="claimWaAccBtn" onclick="claimAccountWhatsAppTask()" style="background:#10B981; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer;">
-                        <i class="fas fa-check-circle"></i> Claim 10 Credits
-                    </button>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="quick-actions" style="margin-top:25px;">
-                <h3>Quick Actions</h3>
-                <div class="actions-grid">
-                    <a href="tools.html" class="action-card"><i class="fas fa-tools"></i><span>Browse Tools</span></a>
-                    <a href="toolkit-maker.html" class="action-card"><i class="fas fa-magic"></i><span>Toolkit Maker</span></a>
-                    <a href="buy-credits.html" class="action-card"><i class="fas fa-coins"></i><span>Buy Credits</span></a>
-                    <button class="action-card logout-action" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Login Required -->
-        <div id="loginRequired" style="display: none; text-align:center; padding:40px;">
-            <div class="protected-box">
-                <div class="protected-icon"><i class="fas fa-lock"></i></div>
-                <h2>Login Required</h2>
-                <p>Please login to view your account and referral link</p>
-                <div class="protected-actions">
-                    <button class="btn-primary" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
-                    <button class="btn-secondary" onclick="openAuthModal('register')"><i class="fas fa-user-plus"></i> Create Account</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Auth Modal -->
-    <div class="modal-overlay" id="authModal" style="display: none;">
-        <div class="modal-box auth-modal">
-            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-            <div class="modal-header">
-                <h2 id="authModalTitle">Login</h2>
-                <p id="authModalSubtitle">Access your account</p>
-            </div>
-            <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="loginEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-                <button type="submit" class="auth-submit-btn" id="loginBtn">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-                <p class="auth-switch">
-                    Don't have an account? 
-                    <a href="javascript:void(0)" onclick="switchAuthMode('register')">Register here</a>
-                </p>
-            </form>
-            <form id="registerForm" class="auth-form" style="display: none;" onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label><i class="fas fa-user"></i> Display Name</label>
-                    <input type="text" id="registerName" placeholder="Enter your name" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="registerEmail" placeholder="Enter your email" required>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Password</label>
-                    <input type="password" id="registerPassword" placeholder="Create a password" required minlength="6">
-                    <button type="button" class="password-toggle" onclick="togglePassword('registerPassword')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Confirm Password</label>
-                    <input type="password" id="registerConfirmPassword" placeholder="Confirm your password" required minlength="6">
-                    <button type="button" class="password-toggle" onclick="togglePassword('registerConfirmPassword')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-                <button type="submit" class="auth-submit-btn" id="registerBtn">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </button>
-                <p class="auth-switch">
-                    Already have an account? 
-                    <a href="javascript:void(0)" onclick="switchAuthMode('login')">Login here</a>
-                </p>
-            </form>
-        </div>
-    </div>
-
-    <div class="toast-container" id="toastContainer"></div>
-
-    <script src="js/script.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/credits.js"></script>
-    <script>
-        auth.onAuthStateChanged(function(user) {
-            if (user) {
-                currentUser = user;
-                loadAccountData(user);
-            } else {
-                currentUser = null;
-                currentUserData = null;
-                document.getElementById('accountLoading').style.display = 'none';
-                document.getElementById('accountContent').style.display = 'none';
-                document.getElementById('loginRequired').style.display = 'block';
-                showGuestState();
-            }
-        });
+    db.collection('tools').where('status', '==', 'active').get().then((snapshot) => {
+        if (toolsLoading) toolsLoading.style.display = 'none';
         
-        function loadAccountData(user) {
-            db.collection('users').doc(user.uid).get().then((doc) => {
-                document.getElementById('accountLoading').style.display = 'none';
-                document.getElementById('accountContent').style.display = 'block';
-                document.getElementById('loginRequired').style.display = 'none';
-                
-                if (doc.exists) {
-                    const data = doc.data();
-                    currentUserData = data;
-                    
-                    document.getElementById('accountName').textContent = data.displayName || 'User';
-                    document.getElementById('accountEmail').textContent = data.email || '';
-                    document.getElementById('accountCredits').textContent = data.credits || 0;
-                    
-                    if (data.photoURL) {
-                        document.getElementById('userAvatarImg').src = data.photoURL;
-                    }
-                    
-                    // 10-Digit Referral Link
-                    const refCode = data.referralCode || '0000000000';
-                    const refLink = `${window.location.origin}/index.html?ref=${refCode}`;
-                    document.getElementById('accReferralLinkInput').value = refLink;
-                    
-                    document.getElementById('accTotalReferrals').textContent = data.totalReferrals || 0;
-                    
-                    const unclaimed = data.unclaimedReferrals || 0;
-                    const claimBtn = document.getElementById('claimReferralBtn');
-                    
-                    if (unclaimed >= 3) {
-                        const reward = unclaimed * 6;
-                        document.getElementById('accUnclaimedReferrals').textContent = `${unclaimed} (Ready to Claim!)`;
-                        claimBtn.disabled = false;
-                        claimBtn.style.cursor = 'pointer';
-                        claimBtn.style.color = '#fff';
-                        claimBtn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-                        claimBtn.innerHTML = `<i class="fas fa-gift"></i> Claim ${reward} Credits (${unclaimed} Referrals × 6)`;
-                    } else {
-                        document.getElementById('accUnclaimedReferrals').textContent = `${unclaimed} / 3 (Need at least 3)`;
-                        claimBtn.disabled = true;
-                        claimBtn.style.cursor = 'not-allowed';
-                        claimBtn.style.color = '#888';
-                        claimBtn.style.background = 'rgba(255,255,255,0.08)';
-                        claimBtn.innerHTML = `<i class="fas fa-lock"></i> Need 3 Referrals to Claim (${unclaimed}/3)`;
-                    }
-
-                    // Check WhatsApp Task
-                    const tasks = data.completedTasks || {};
-                    if (tasks['task_whatsapp']) {
-                        const waArea = document.getElementById('waClaimArea');
-                        if (waArea) waArea.innerHTML = '<span style="color:#4ade80; font-size:12px; font-weight:700;"><i class="fas fa-check-circle"></i> +10 Credits Claimed</span>';
-                    }
-                }
+        activeToolsList = [];
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            activeToolsList.push({
+                id: doc.id,
+                name: data.name || 'Tool',
+                description: data.description || '',
+                category: data.category || 'utility',
+                icon: data.icon || 'fas fa-tools',
+                type: data.type || 'free',
+                creditCost: data.creditCost !== undefined ? data.creditCost : 5
             });
+        });
+
+        if (activeToolsList.length === 0 && typeof toolsData !== 'undefined') {
+            activeToolsList = toolsData.map((t, idx) => ({ id: 'local_' + idx, ...t }));
         }
 
-        // Copy 10-Digit Referral Link
-        function copyAccountRefLink() {
-            const input = document.getElementById('accReferralLinkInput');
-            if (!input) return;
-            input.select();
-            navigator.clipboard.writeText(input.value).then(() => {
-                showToast('Invitation Link Copied! Share with friends.', 'success');
-            });
-        }
+        renderTools('all');
+        checkUrlCategory();
+    }).catch((err) => {
+        console.error("Error loading tools:", err);
+        if (toolsLoading) toolsLoading.style.display = 'none';
+    });
+}
 
-        // Claim Referral Rewards (Min 3 @ 6 credits each)
-        function claimAccountReferralRewards() {
-            if (!currentUser) return;
-            const unclaimed = currentUserData ? (currentUserData.unclaimedReferrals || 0) : 0;
-            if (unclaimed < 3) {
-                showToast('You need at least 3 referrals to claim rewards!', 'error');
-                return;
+// Auth State Listener
+function initAuthState() {
+    auth.onAuthStateChanged(function(user) {
+        if (user) {
+            currentUser = user;
+            loadUserData(user);
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            showGuestState();
+        }
+    });
+}
+
+// Load User Data from Firestore (Strictly prevents credit reset on refresh)
+function loadUserData(user) {
+    if (!user) return;
+    
+    db.collection('users').doc(user.uid).get().then((doc) => {
+        if (doc.exists) {
+            currentUserData = doc.data();
+            currentUserData.credits = typeof currentUserData.credits === 'number' ? currentUserData.credits : 0;
+            
+            // Generate smart UID if missing
+            if (!currentUserData.referralCode || currentUserData.referralCode === '0000000000') {
+                const smartCode = generateSmartUID(currentUserData.phone || '');
+                db.collection('users').doc(user.uid).update({ referralCode: smartCode });
+                currentUserData.referralCode = smartCode;
             }
-
-            const btn = document.getElementById('claimReferralBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Claiming...';
-
-            const userRef = db.collection('users').doc(currentUser.uid);
-            db.runTransaction((tx) => {
-                return tx.get(userRef).then((doc) => {
-                    if (!doc.exists) throw new Error('User not found');
-                    const d = doc.data();
-                    const count = d.unclaimedReferrals || 0;
-                    if (count < 3) throw new Error('Minimum 3 referrals required!');
-                    
-                    const reward = count * 6; // 6 Credits per referral
-                    const newCredits = (d.credits || 0) + reward;
-                    
-                    tx.update(userRef, {
-                        credits: newCredits,
-                        unclaimedReferrals: 0,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    return { newCredits, reward, count };
-                });
-            }).then((res) => {
-                if (currentUserData) {
-                    currentUserData.credits = res.newCredits;
-                    currentUserData.unclaimedReferrals = 0;
-                }
-                updateCreditsDisplay(res.newCredits);
-                loadAccountData(currentUser);
-                logTransaction('referral_reward', `Claimed ${res.count} Referrals Reward`, res.reward);
-                showToast(`🎉 Congratulations! +${res.reward} Credits Added!`, 'success');
-            }).catch(err => {
-                showToast(err.message, 'error');
-                loadAccountData(currentUser);
-            });
-        }
-
-        // Claim WhatsApp Task (1-Time)
-        function claimAccountWhatsAppTask() {
-            if (!currentUser) return;
-            if (!sessionStorage.getItem('wa_acc_opened')) {
-                showToast('Please click "Join WhatsApp Group" first!', 'error');
-                return;
-            }
-
-            const btn = document.getElementById('claimWaAccBtn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-
-            const userRef = db.collection('users').doc(currentUser.uid);
-            db.runTransaction((tx) => {
-                return tx.get(userRef).then((doc) => {
-                    if (!doc.exists) throw new Error('User not found');
-                    const d = doc.data();
-                    const tasks = d.completedTasks || {};
-                    if (tasks['task_whatsapp']) throw new Error('Already claimed!');
-                    
-                    tasks['task_whatsapp'] = true;
-                    const newCredits = (d.credits || 0) + 10;
-                    tx.update(userRef, {
-                        credits: newCredits,
-                        completedTasks: tasks,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    return newCredits;
-                });
-            }).then((newCredits) => {
-                if (currentUserData) currentUserData.credits = newCredits;
-                updateCreditsDisplay(newCredits);
-                loadAccountData(currentUser);
-                logTransaction('task_reward', 'Joined Official WhatsApp Group', 10);
-                showToast('🎉 +10 Credits Added!', 'success');
-            }).catch(err => {
-                showToast(err.message, 'error');
-                loadAccountData(currentUser);
-            });
-        }
-
-        // Profile Photo Upload
-        function uploadUserProfilePhoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                showToast('Photo must be less than 2MB', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 150;
-                    canvas.height = 150;
-                    ctx.drawImage(img, 0, 0, 150, 150);
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                    
-                    document.getElementById('userAvatarImg').src = compressedBase64;
-                    showToast('Updating profile photo...', 'info');
-                    
-                    db.collection('users').doc(currentUser.uid).update({
-                        photoURL: compressedBase64,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        currentUserData.photoURL = compressedBase64;
-                        showToast('Profile photo updated successfully!', 'success');
-                    }).catch(err => {
-                        showToast('Error: ' + err.message, 'error');
-                    });
-                };
+            
+            updateUserUI(user, currentUserData);
+        } else {
+            const smartCode = generateSmartUID('');
+            const userData = {
+                uid: user.uid,
+                displayName: user.displayName || 'User',
+                email: user.email || '',
+                phone: '',
+                photoURL: '',
+                referralCode: smartCode,
+                totalReferrals: 0,
+                unclaimedReferrals: 0,
+                credits: 25, // 25 Free Signup Welcome Credits
+                accountStatus: 'active',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
-            reader.readAsDataURL(file);
+            db.collection('users').doc(user.uid).set(userData).then(() => {
+                currentUserData = userData;
+                updateUserUI(user, userData);
+            });
         }
-    </script>
-</body>
-    </html>
+    }).catch((error) => {
+        console.error("Error loading user data:", error);
+    });
+}
+
+function updateUserUI(user, userData) {
+    const guestButtons = document.getElementById('guestButtons');
+    const userLoggedIn = document.getElementById('userLoggedIn');
+    const navUserName = document.getElementById('navUserName');
+    const navCredits = document.getElementById('navCredits');
+    const mobileAuthArea = document.getElementById('mobileAuthArea');
+    
+    const credits = userData && typeof userData.credits === 'number' ? userData.credits : 0;
+    const photo = (userData && userData.photoURL) || CONFIG.DEFAULT_AVATAR;
+    
+    if (guestButtons) guestButtons.style.display = 'none';
+    if (userLoggedIn) userLoggedIn.style.display = 'flex';
+    
+    if (navUserName) {
+        navUserName.textContent = (userData && userData.displayName) || 'Account';
+    }
+    
+    if (navCredits) {
+        navCredits.textContent = credits;
+    }
+    
+    const unlockCurrentCredits = document.getElementById('unlockCurrentCredits');
+    if (unlockCurrentCredits) {
+        unlockCurrentCredits.textContent = credits;
+    }
+    
+    if (mobileAuthArea) {
+        mobileAuthArea.innerHTML = `
+            <div class="mobile-user-info" style="display:flex;align-items:center;gap:10px;">
+                <img src="${photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #6D5CFF;" onerror="this.src='${CONFIG.DEFAULT_AVATAR}'">
+                <div>
+                    <span class="mobile-user-name" style="display:block;font-weight:700;">${(userData && userData.displayName) || 'User'}</span>
+                    <span class="mobile-user-credits" style="color:#ffd700;font-size:12px;"><i class="fas fa-coins"></i> ${credits} Credits</span>
+                </div>
+            </div>
+            <button class="mobile-logout-btn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        `;
+    }
+}
+
+function showGuestState() {
+    const guestButtons = document.getElementById('guestButtons');
+    const userLoggedIn = document.getElementById('userLoggedIn');
+    const mobileAuthArea = document.getElementById('mobileAuthArea');
+    
+    if (guestButtons) guestButtons.style.display = 'flex';
+    if (userLoggedIn) userLoggedIn.style.display = 'none';
+    
+    if (mobileAuthArea) {
+        mobileAuthArea.innerHTML = `
+            <button class="mobile-auth-btn" onclick="openAuthModal('login')"><i class="fas fa-sign-in-alt"></i> Login</button>
+            <button class="mobile-auth-btn" onclick="openAuthModal('register')"><i class="fas fa-user-plus"></i> Create Account</button>
+        `;
+    }
+}
+
+function openAuthModal(mode = 'login') {
+    const modal = document.getElementById('authModal');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const modalTitle = document.getElementById('authModalTitle');
+    const modalSubtitle = document.getElementById('authModalSubtitle');
+    
+    if (!modal) return;
+    modal.style.display = 'flex';
+    
+    if (mode === 'login') {
+        if (loginForm) loginForm.style.display = 'block';
+        if (registerForm) registerForm.style.display = 'none';
+        if (modalTitle) modalTitle.textContent = 'Login';
+        if (modalSubtitle) modalSubtitle.textContent = 'Access your account';
+    } else {
+        if (loginForm) loginForm.style.display = 'none';
+        if (registerForm) registerForm.style.display = 'block';
+        if (modalTitle) modalTitle.textContent = 'Create Account';
+        if (modalSubtitle) modalSubtitle.textContent = 'Get 25 Free Welcome Credits!';
+    }
+}
+
+function closeAuthModal() {
+    const modal = document.getElementById('authModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function switchAuthMode(mode) {
+    openAuthModal(mode);
+}
+
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const loginBtn = document.getElementById('loginBtn');
+    
+    if (!email || !password) {
+        showToast('Please fill in all fields', 'error');
+        return;
+    }
+    
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+    
+    auth.signInWithEmailAndPassword(email, password).then((userCredential) => {
+        showToast('Login successful!', 'success');
+        closeAuthModal();
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+        loadUserData(userCredential.user);
+    }).catch((error) => {
+        showToast(error.message, 'error');
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+    });
+}
+
+// User Registration with 9-Digit Smart Referral Tracking
+async function handleRegister(event) {
+    event.preventDefault();
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    const registerBtn = document.getElementById('registerBtn');
+    
+    if (!name || !email || !password || !confirmPassword) {
+        showToast('Please fill in all fields', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showToast('Password must be at least 6 characters', 'error');
+        return;
+    }
+    if (password !== confirmPassword) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }
+    
+    registerBtn.disabled = true;
+    registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+    
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        await user.updateProfile({ displayName: name });
+        
+        const myReferralCode = generateSmartUID('');
+        const pendingRefCode = localStorage.getItem('pending_fahad_ref');
+        let referredByUid = null;
+        let referredByCode = null;
+        
+        if (pendingRefCode) {
+            const inviterSnapshot = await db.collection('users').where('referralCode', '==', pendingRefCode).limit(1).get();
+            if (!inviterSnapshot.empty) {
+                const inviterDoc = inviterSnapshot.docs[0];
+                referredByUid = inviterDoc.id;
+                referredByCode = pendingRefCode;
+                
+                // Real-time increment on inviter document
+                await db.collection('users').doc(referredByUid).update({
+                    totalReferrals: firebase.firestore.FieldValue.increment(1),
+                    unclaimedReferrals: firebase.firestore.FieldValue.increment(1),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            localStorage.removeItem('pending_fahad_ref');
+        }
+        
+        const userData = {
+            uid: user.uid,
+            displayName: name,
+            email: email,
+            phone: '',
+            photoURL: '',
+            referralCode: myReferralCode,
+            referredBy: referredByUid,
+            referredByCode: referredByCode,
+            totalReferrals: 0,
+            unclaimedReferrals: 0,
+            credits: 25, // 🎁 25 Free Welcome Credits on Signup
+            accountStatus: 'active',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await db.collection('users').doc(user.uid).set(userData);
+        currentUserData = userData;
+        updateUserUI(user, userData);
+        
+        showToast('Account created! 25 Free Credits Added 🎁', 'success');
+        closeAuthModal();
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+    } catch (error) {
+        showToast(error.message, 'error');
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+    }
+}
+
+function logoutUser() {
+    sessionStorage.clear();
+    auth.signOut().then(() => {
+        showToast('Logged out successfully', 'success');
+        setTimeout(() => { window.location.href = 'index.html'; }, 800);
+    }).catch((error) => {
+        showToast('Error: ' + error.message, 'error');
+    });
+}
+
+function goToAccount() {
+    window.location.href = 'account.html';
+}
+
+// Render Tools
+function renderTools(category = 'all', searchTerm = '') {
+    const toolsGrid = document.getElementById('toolsGrid');
+    const toolsEmpty = document.getElementById('toolsEmpty');
+    if (!toolsGrid) return;
+    
+    let filteredTools = activeToolsList;
+    if (category !== 'all') filteredTools = filteredTools.filter(t => t.category === category);
+    if (searchTerm) {
+        filteredTools = filteredTools.filter(t => 
+            t.name.toLowerCase().includes(searchTerm) || (t.description && t.description.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    toolsGrid.innerHTML = '';
+    if (filteredTools.length === 0) {
+        toolsGrid.style.display = 'none';
+        if (toolsEmpty) toolsEmpty.style.display = 'block';
+        return;
+    }
+    
+    toolsGrid.style.display = 'grid';
+    if (toolsEmpty) toolsEmpty.style.display = 'none';
+    
+    filteredTools.forEach((tool, index) => {
+        const card = document.createElement('div');
+        card.classList.add('tool-card');
+        card.style.animationDelay = (index * 0.03) + 's';
+        
+        if (tool.type === 'premium') {
+            card.innerHTML = `
+                <div class="tool-icon"><i class="${tool.icon || 'fas fa-crown'}"></i></div>
+                <span class="tool-category-badge premium-badge"><i class="fas fa-crown"></i> PREMIUM</span>
+                <h3>${escapeHtml(tool.name)}</h3>
+                <p>${escapeHtml(tool.description)}</p>
+                <button onclick="window.open('${CONFIG.PREMIUM_WHATSAPP}?text=${encodeURIComponent('Hello! I am interested in: ' + tool.name)}', '_blank')" class="tool-btn premium-btn">
+                    Contact Admin <i class="fas fa-crown"></i>
+                </button>
+            `;
+        } else {
+            card.innerHTML = `
+                <div class="tool-icon"><i class="${tool.icon || 'fas fa-tools'}"></i></div>
+                <span class="tool-category-badge">${getCategoryName(tool.category)}</span>
+                <h3>${escapeHtml(tool.name)}</h3>
+                <p>${escapeHtml(tool.description)}</p>
+                <button onclick="openVisitModal('${tool.id}', '${escapeHtml(tool.name)}', ${tool.creditCost || 5})" class="tool-btn free-btn">
+                    Open Tool (${tool.creditCost || 5} Credits) <i class="fas fa-lock"></i>
+                </button>
+            `;
+        }
+        toolsGrid.appendChild(card);
+    });
+}
+
+function openVisitModal(toolId, toolName, creditCost = 5) {
+    selectedToolIdForAccess = toolId;
+    const modal = document.getElementById('visitModal');
+    const modalToolName = document.getElementById('modalToolName');
+    const visitBtn = document.getElementById('visitLink') || document.getElementById('confirmToolAccessBtn');
+    
+    if (modal && modalToolName) {
+        modalToolName.textContent = toolName;
+        if (visitBtn) {
+            visitBtn.innerHTML = `Unlock & Open (${creditCost} Credits) <i class="fas fa-external-link-alt"></i>`;
+            visitBtn.removeAttribute('href');
+            visitBtn.onclick = processToolAccess;
+        }
+        modal.style.display = 'flex';
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('visitModal');
+    if (modal) modal.style.display = 'none';
+    selectedToolIdForAccess = null;
+}
+
+function processToolAccess() {
+    if (isProcessingTool) return;
+    if (!currentUser) { closeModal(); openAuthModal('login'); return; }
+    
+    const userCredits = currentUserData ? (currentUserData.credits || 0) : 0;
+    if (userCredits < 5) { closeModal(); showInsufficientCredits(5); return; }
+    
+    isProcessingTool = true;
+    const newTab = window.open('about:blank', '_blank');
+    const userRef = db.collection('users').doc(currentUser.uid);
+    
+    db.runTransaction((transaction) => {
+        return transaction.get(userRef).then((userDoc) => {
+            if (!userDoc.exists) throw new Error('User not found');
+            const data = userDoc.data();
+            const currCreds = typeof data.credits === 'number' ? data.credits : 0;
+            if (currCreds < 5) throw new Error('Insufficient credits');
+            
+            const newCreds = currCreds - 5;
+            transaction.update(userRef, {
+                credits: newCreds,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return newCreds;
+        });
+    }).then((newCredits) => {
+        if (currentUserData) currentUserData.credits = newCredits;
+        updateCreditsDisplay(newCredits);
+        return db.collection('tools').doc(selectedToolIdForAccess).get();
+    }).then((toolDoc) => {
+        isProcessingTool = false;
+        closeModal();
+        let toolUrl = toolDoc.exists ? toolDoc.data().link : '';
+        if (toolUrl) {
+            newTab.location.href = toolUrl;
+            showToast('5 credits deducted. Tool unlocked!', 'success');
+        } else {
+            newTab.close();
+            showToast('Tool link unavailable', 'error');
+        }
+    }).catch((error) => {
+        isProcessingTool = false;
+        if (newTab) newTab.close();
+        closeModal();
+        showToast(error.message, 'error');
+    });
+}
+
+function filterTools(category) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.filter === category) btn.classList.add('active');
+    });
+    const searchTerm = document.getElementById('toolSearchInput')?.value || '';
+    renderTools(category, searchTerm);
+}
+
+function searchTools() {
+    const searchInput = document.getElementById('toolSearchInput');
+    if (!searchInput) return;
+    renderTools(document.querySelector('.filter-btn.active')?.dataset.filter || 'all', searchInput.value.toLowerCase());
+}
+
+function checkUrlCategory() {
+    const cat = new URLSearchParams(window.location.search).get('category');
+    if (cat) filterTools(cat);
+}
+
+function getCategoryName(category) {
+    const names = { 'ai': 'AI Tools', 'photo': 'Photo AI', 'video': 'Video Makers', 'osint': 'OSINT', 'telegram': 'Telegram Bots', 'encoder': 'Encoders', 'social': 'Social Media', 'mods': 'Mod Apps', 'hacking': 'Hacking', 'prank': 'Prank', 'courses': 'Courses', 'gaming': 'Gaming', 'fonts': 'Fonts', 'utility': 'Utilities', 'premium': 'Premium' };
+    return names[category] || category;
+}
+
+function initMobileMenu() {
+    const hamburger = document.getElementById('hamburgerBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (hamburger && mobileMenu) {
+        hamburger.addEventListener('click', () => { hamburger.classList.toggle('active'); mobileMenu.classList.toggle('open'); });
+        mobileMenu.querySelectorAll('a').forEach(l => l.addEventListener('click', () => { hamburger.classList.remove('active'); mobileMenu.classList.remove('open'); }));
+    }
+}
+
+function initContactLinks() {
+    document.querySelectorAll('[data-whatsapp]').forEach(el => el.href = CONFIG.WHATSAPP_LINK);
+    document.querySelectorAll('[data-telegram]').forEach(el => el.href = CONFIG.TELEGRAM_LINK);
+    document.querySelectorAll('[data-email]').forEach(el => el.href = CONFIG.EMAIL_LINK);
+}
+
+function initProfileImage() {
+    const profileImg = document.getElementById('profileImage');
+    if (profileImg) profileImg.src = (currentUserData && currentUserData.photoURL) || CONFIG.DEFAULT_AVATAR;
+}
+
+function showToast(message, type = 'info') {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        container.id = 'toastContainer';
+        document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.classList.add('toast', `toast-${type}`);
+    const icons = { 'success': 'fas fa-check-circle', 'error': 'fas fa-exclamation-circle', 'info': 'fas fa-info-circle', 'warning': 'fas fa-exclamation-triangle' };
+    toast.innerHTML = `<i class="${icons[type] || icons.info}"></i><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+}
