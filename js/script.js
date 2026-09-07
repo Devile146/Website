@@ -7,7 +7,7 @@ const CONFIG = {
     TELEGRAM_LINK: "https://t.me/fahad_tricks_bot",
     EMAIL_LINK: "mailto:fahadali2727@gmail.com",
     PREMIUM_WHATSAPP: "https://wa.me/923251138959",
-    DEFAULT_AVATAR: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236D5CFF'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>"
+    DEFAULT_AVATAR: "https://raw.githubusercontent.com/Devile146/Website/d9876717d20fcbf1e3d1a898fcedc7f440f2bad1/Dppic.jpg"
 };
 
 var currentUser = null;
